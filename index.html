@@ -4113,9 +4113,15 @@ function sElegirAccion(n){
 
 function sCargarTodo(){
   if (MODO_DEMO){
-    sStock = { campos: [], huerfanos: [] };
-    sMovs = []; sPotreros = [];
+    // En prueba el stock se calcula igual que en el servidor, pero contra lo
+    // guardado en el navegador. Así se puede evaluar de verdad sin instalar nada.
+    sPotreros = leerDemo('potreros_demo');
+    var movs = leerDemo('existencia_demo');
+    sStock = sCalcularStock(sPotreros, movs);
+    sMovs = sAgruparMovs(movs);
+    sLlenarPotreros();
     sPintarTodo();
+    sPintarMovs();
     return;
   }
   google.script.run.withSuccessHandler(function(d){ sPotreros = d || []; sLlenarPotreros(); })
@@ -4142,6 +4148,90 @@ function sLlenarPotreros(){
     });
     if (actual) sel.value = actual;
   });
+}
+
+/**
+ * Mismo cálculo que hace el servidor: suma el libro de movimientos y lo cruza
+ * con los potreros. Está acá para que el modo prueba dé exactamente igual.
+ */
+function sCalcularStock(potreros, movs){
+  var acum = {};
+  (movs || []).forEach(function(m){
+    if (!m.categoria) return;
+    var k = (m.campo || '') + '||' + (m.potrero || '');
+    if (!acum[k]) acum[k] = {};
+    acum[k][m.categoria] = (acum[k][m.categoria] || 0) + (Number(m.cantidad) || 0);
+  });
+
+  var porCampo = {}, orden = [];
+  (potreros || []).forEach(function(pt){
+    if (!porCampo[pt.campo]){
+      porCampo[pt.campo] = { campo: pt.campo, hectareas: 0, cabezas: 0, potreros: [] };
+      orden.push(pt.campo);
+    }
+    var c = porCampo[pt.campo];
+    var k = pt.campo + '||' + pt.nombre;
+    var cats = [], total = 0, m = acum[k] || {};
+    Object.keys(m).forEach(function(cat){
+      if (!m[cat]) return;
+      cats.push({categoria:cat, cantidad:m[cat]});
+      total += m[cat];
+    });
+    cats.sort(function(a,b){ return b.cantidad - a.cantidad; });
+    delete acum[k];
+    c.hectareas += Number(pt.hectareas) || 0;
+    c.cabezas += total;
+    c.potreros.push({nombre:pt.nombre, tipo:pt.tipo, hectareas:Number(pt.hectareas)||0,
+                     geo:pt.geo, categorias:cats, cabezas:total});
+  });
+
+  var huerfanos = [];
+  Object.keys(acum).forEach(function(k){
+    var p = k.split('||'), cats = [], total = 0;
+    Object.keys(acum[k]).forEach(function(cat){
+      if (!acum[k][cat]) return;
+      cats.push({categoria:cat, cantidad:acum[k][cat]});
+      total += acum[k][cat];
+    });
+    if (cats.length) huerfanos.push({campo:p[0], potrero:p[1] || '(sin potrero)',
+                                     categorias:cats, cabezas:total});
+  });
+
+  return { campos: orden.map(function(n){ return porCampo[n]; }), huerfanos: huerfanos };
+}
+
+function sAgruparMovs(movs){
+  var mapa = {}, orden = [];
+  (movs || []).forEach(function(m){
+    if (!mapa[m.id]){
+      mapa[m.id] = {id:m.id, fecha:m.fecha, tipo:m.tipo,
+                    responsable:m.responsable || '', obs:m.obs || '', lineas:[]};
+      orden.push(m.id);
+    }
+    mapa[m.id].lineas.push({campo:m.campo, potrero:m.potrero,
+                            categoria:m.categoria, cantidad:m.cantidad});
+  });
+  var l = orden.map(function(i){ return mapa[i]; });
+  l.sort(function(a,b){ if (a.fecha === b.fecha) return a.id < b.id ? 1 : -1;
+                        return a.fecha < b.fecha ? 1 : -1; });
+  return l.slice(0, 40);
+}
+
+/** Hectáreas de un polígono. Misma fórmula que usa el servidor. */
+function sAreaHectareas(geo){
+  var anillos = sAnillos(geo);
+  if (!anillos.length) return 0;
+  var R = 6378137, total = 0;
+  anillos.forEach(function(a){
+    var s = 0;
+    for (var i = 0; i < a.length - 1; i++){
+      var x1 = a[i][0]*Math.PI/180,   y1 = a[i][1]*Math.PI/180;
+      var x2 = a[i+1][0]*Math.PI/180, y2 = a[i+1][1]*Math.PI/180;
+      s += (x2 - x1) * (2 + Math.sin(y1) + Math.sin(y2));
+    }
+    total += Math.abs(s * R * R / 2);
+  });
+  return total / 10000;
 }
 
 /* ---------- existencia ---------- */
@@ -4429,9 +4519,33 @@ function sGuardar(){
   if (sAccion === 'Movimiento' && !hacia){ aviso('Elegí a dónde van', true); return; }
   if (sAccion === 'Movimiento' && hacia === desde){ aviso('Es el mismo potrero', true); return; }
 
-  if (MODO_DEMO){ aviso('En modo prueba el stock necesita el servidor', true); return; }
-
   var d = desde.split('||'), h = (hacia || '').split('||');
+
+  if (MODO_DEMO){
+    var libro = leerDemo('existencia_demo');
+    var id = 'EX-' + (libro.length + 1);
+    var base = { id:id, fecha:fecha, tipo:sAccion, responsable:resp,
+                 obs: document.getElementById('sObs').value.trim() };
+    sLineas.forEach(function(l){
+      if (sAccion === 'Movimiento'){
+        libro.push(Object.assign({}, base, {campo:d[0], potrero:d[1],
+                   categoria:l.categoria, cantidad:-l.cantidad}));
+        libro.push(Object.assign({}, base, {campo:h[0], potrero:h[1],
+                   categoria:l.categoria, cantidad:l.cantidad}));
+      } else {
+        libro.push(Object.assign({}, base, {campo:d[0], potrero:d[1],
+                   categoria:l.categoria, cantidad:l.cantidad}));
+      }
+    });
+    guardarDemo('existencia_demo', libro);
+    sLineas = [];
+    document.getElementById('sObs').value = '';
+    sPintarLineas();
+    sCargarTodo();
+    aviso('✓ Guardado');
+    sVerTab('mapa');
+    return;
+  }
   var btn = document.getElementById('sBtnGuardar');
   btn.disabled = true; btn.textContent = 'Guardando...';
 
@@ -4469,14 +4583,25 @@ function sImportarGeo(input){
   var f = (input.files || [])[0];
   input.value = '';
   if (!f) return;
-  if (MODO_DEMO){ aviso('El geojson se importa con el servidor', true); return; }
-
   var hint = document.getElementById('sHintGeo');
   hint.textContent = 'Leyendo el archivo...';
 
   var lector = new FileReader();
   lector.onerror = function(){ hint.textContent = 'No pude abrir el archivo.'; };
   lector.onload = function(e){
+    if (MODO_DEMO){
+      try {
+        var r = sImportarGeoDemo(String(e.target.result),
+                                 document.getElementById('sGeoCampo').value);
+        hint.textContent = 'Listo: ' + r.nuevos + ' potreros nuevos, ' + r.actualizados + ' actualizados.';
+        aviso('✓ Mapa importado');
+        sCargarTodo();
+      } catch(err){
+        hint.textContent = 'No se pudo importar: ' + err.message;
+        aviso('El archivo no se pudo leer', true);
+      }
+      return;
+    }
     google.script.run
       .withSuccessHandler(function(r){
         hint.textContent = 'Listo: ' + r.nuevos + ' potreros nuevos, ' + r.actualizados + ' actualizados.';
@@ -4487,6 +4612,48 @@ function sImportarGeo(input){
       .importarGeojson(CODIGO, String(e.target.result), document.getElementById('sGeoCampo').value);
   };
   lector.readAsText(f);
+}
+
+/** Mismo importador que el servidor, pero guardando en el navegador. */
+function sImportarGeoDemo(texto, campoPorDefecto){
+  var gj = JSON.parse(texto);
+  var feats = gj.features || (gj.type === 'Feature' ? [gj] : []);
+  if (!feats.length) throw new Error('El archivo no tiene lotes adentro.');
+
+  var lista = leerDemo('potreros_demo');
+  var indice = {};
+  lista.forEach(function(p, i){ indice[p.campo + '||' + p.nombre] = i; });
+
+  var nuevos = 0, actualizados = 0, sinNombre = 0;
+
+  feats.forEach(function(f){
+    var pr = f.properties || {};
+    var nombre = String(pr.nombre || pr.Nombre || pr.name || pr.NAME ||
+                        pr.lote || pr.Lote || pr.potrero || '').trim();
+    if (!nombre){ sinNombre++; nombre = 'Lote ' + sinNombre; }
+
+    var campo = String(pr.campo || pr.Campo || pr.establecimiento || campoPorDefecto || '').trim();
+    var has = Number(pr.hectareas || pr.Hectareas || pr.has || pr.ha || 0);
+    if (!has) has = Math.round(sAreaHectareas(f.geometry) * 100) / 100;
+
+    var tipo = String(pr.tipo || pr.Tipo || 'Potrero').trim();
+    if (tipo !== 'Corral') tipo = 'Potrero';
+
+    var k = campo + '||' + nombre;
+    if (indice[k] !== undefined){
+      var p = lista[indice[k]];
+      p.geo = f.geometry;
+      if (has && !p.hectareas) p.hectareas = has;
+      actualizados++;
+    } else {
+      lista.push({campo:campo, nombre:nombre, hectareas:has, tipo:tipo, geo:f.geometry});
+      indice[k] = lista.length - 1;
+      nuevos++;
+    }
+  });
+
+  guardarDemo('potreros_demo', lista);
+  return { nuevos: nuevos, actualizados: actualizados };
 }
 
 function sVerTab(t){
@@ -4501,7 +4668,6 @@ function sVerTab(t){
 }
 
 /* ======================================================================= */
-// registra el service worker: es lo que hace que se pueda instalar
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function(){
     navigator.serviceWorker.register('./sw.js').catch(function(){});
