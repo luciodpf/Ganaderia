@@ -284,7 +284,143 @@
   .toast.show{opacity:1}
   .toast.err{background:var(--ladrillo)}
 
-  /* stock */
+  /* stock — el diseño salió de Claude Design, se copiaron sus medidas */
+  .haciendaHoy{
+    background:var(--papel);border:1px solid var(--borde);border-top:3px solid var(--oliva);
+    border-radius:3px;padding:16px 16px 14px;text-align:center;margin-bottom:12px;
+  }
+  .haciendaHoy .rot{font-family:var(--serif);font-size:12px;font-weight:700;letter-spacing:2px;
+                    text-transform:uppercase;color:var(--gris)}
+  .haciendaHoy .num{font-family:var(--serif);font-size:62px;line-height:1;font-weight:700;
+                    color:var(--oliva);font-variant-numeric:tabular-nums;margin:8px 0 4px}
+  .haciendaHoy .sub{font-size:12.5px;color:var(--gris)}
+
+  .btnGrande{
+    width:100%;padding:22px;border:1px solid var(--ladrillo-osc);border-radius:2px;
+    background:var(--ladrillo);color:#f7efe6;font-family:var(--serif);font-size:21px;
+    font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:9px;cursor:pointer;
+  }
+  .btnMedio{
+    width:100%;padding:15px;border:1.5px solid var(--oliva);border-radius:2px;background:#fff;
+    color:var(--oliva);font-family:var(--serif);font-size:15px;font-weight:700;
+    letter-spacing:1.4px;text-transform:uppercase;margin-bottom:20px;cursor:pointer;
+  }
+  .btnGrande:active,.btnMedio:active{opacity:.85}
+
+  .grillaCampos{display:grid;gap:5px;margin-bottom:12px}
+  .grillaCampos .cq{text-align:center;padding:10px 2px;border-radius:2px;cursor:pointer;
+                    border:1px solid var(--borde);background:var(--papel)}
+  .grillaCampos .cq .n{font-family:var(--serif);font-size:10px;font-weight:700;letter-spacing:.6px;
+                       text-transform:uppercase;color:var(--gris)}
+  .grillaCampos .cq .v{font-family:var(--serif);font-size:19px;font-weight:700;
+                       font-variant-numeric:tabular-nums;margin-top:2px;color:var(--tinta)}
+  .grillaCampos .cq.on{border-color:var(--oliva);background:var(--oliva-claro)}
+  .grillaCampos .cq.on .n{color:var(--oliva)}
+  .grillaCampos .cq.on .v{color:var(--oliva)}
+
+  .encCampo{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
+  .encCampo .n{font-family:var(--serif);font-size:14px;font-weight:700;letter-spacing:2px;
+               text-transform:uppercase;color:var(--ladrillo)}
+  .encCampo .d{font-size:11.5px;color:var(--gris);white-space:nowrap}
+  .encCampo i{flex:1;height:1px;background:var(--oro)}
+  .encCampo .t{font-family:var(--serif);font-size:26px;font-weight:700;color:var(--oliva);
+               font-variant-numeric:tabular-nums}
+
+  .cajaMapa{background:var(--papel);border:1px solid var(--borde);border-radius:3px;
+            padding:9px 9px 7px;margin-bottom:10px}
+  .refMapa{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--gris);
+           border-top:1px solid var(--borde-fino);margin-top:8px;padding-top:7px}
+  .refMapa span.m{width:15px;height:10px;display:inline-block}
+  .refMapa i{flex:1}
+
+  .loteFila{background:var(--papel);border:1px solid var(--borde-fino);
+            border-left:3px solid var(--oliva);border-radius:2px;padding:12px;margin-bottom:6px;
+            display:flex;align-items:center;gap:10px;cursor:pointer}
+  .loteFila.vacia{border-left-color:var(--borde);opacity:.75}
+  .loteFila .izq{flex:1;min-width:0}
+  .loteFila .nom{font-family:var(--serif);font-size:17px;font-weight:700;color:var(--tinta)}
+  .loteFila .nom small{font-weight:400;color:var(--gris);font-size:12px}
+  .loteFila .det{font-size:12.5px;color:#5b6640;margin-top:4px}
+  .loteFila .det.desc{color:var(--gris);font-style:italic}
+  .loteFila .cab{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--oliva);
+                 font-variant-numeric:tabular-nums}
+  .loteFila.sel{border-left-color:var(--ladrillo);border-color:var(--ladrillo)}
+
+  .pieStock{border-top:1px solid var(--borde);margin-top:16px;padding-top:12px;text-align:center;
+            font-size:11.5px;color:var(--gris);font-style:italic}
+
+  .barraModo{
+    background:var(--ladrillo);color:#f7efe6;padding:12px 14px;border-radius:3px;
+    margin-bottom:12px;font-size:14.5px;line-height:1.4;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+  }
+  .barraModo b{font-family:var(--serif)}
+  .barraModo span{background:#fff;color:var(--ladrillo);padding:7px 13px;border-radius:2px;
+                  font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+  .linkChico{font-family:var(--serif);font-size:12px;color:var(--oro);
+             text-decoration:underline;cursor:pointer;font-style:normal}
+  .mapa .lote.sel path{stroke:var(--ladrillo);stroke-width:3}
+  .mapa .lote.apagado{opacity:.35}
+  .panel{background:var(--papel);border:2px solid var(--oliva);border-radius:3px;
+         padding:15px;margin-bottom:12px;box-shadow:0 3px 12px rgba(43,31,24,.14)}
+  .panel .cab2{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .panel .nom{font-family:var(--serif);font-size:19px;font-weight:700;color:var(--oliva)}
+  .panel .nom small{display:block;font-size:12px;font-weight:400;color:var(--gris);
+                    font-style:italic;margin-top:2px}
+  .panel .cerrar{font-size:26px;color:var(--gris);cursor:pointer;line-height:1;padding:0 4px}
+  .panel .acc{display:flex;gap:8px;margin-top:14px}
+  .panel .acc button{flex:1;padding:13px 6px;border-radius:2px;cursor:pointer;
+    font-family:var(--serif);font-size:13.5px;font-weight:700;letter-spacing:.8px;
+    text-transform:uppercase;border:1px solid var(--oliva);background:var(--oliva);color:#f6f4e6}
+  .panel .acc button.sec2{background:#fff;color:var(--oliva)}
+  .cats{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+  .cat{background:var(--oliva-claro);border:1px solid #cbd3b4;border-radius:2px;
+       padding:8px 12px;cursor:pointer;text-align:center;min-width:84px}
+  .cat b{display:block;font-family:var(--serif);font-size:21px;color:var(--oliva);
+         font-variant-numeric:tabular-nums;line-height:1.1}
+  .cat span{font-size:11.5px;color:#5b6640}
+  .cat.mas{background:#fff;border-style:dashed}
+  .cat.mas b{color:var(--gris)}
+  .barraModo{
+    background:var(--ladrillo);color:#f7efe6;padding:12px 14px;border-radius:3px;
+    margin-bottom:12px;font-size:14.5px;line-height:1.4;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+  }
+  .barraModo b{font-family:var(--serif)}
+  .barraModo span{background:#fff;color:var(--ladrillo);padding:7px 13px;border-radius:2px;
+                  font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+  .linkChico{font-family:var(--serif);font-size:13px;color:var(--oro);
+             text-decoration:underline;cursor:pointer}
+  .totalCampo{
+    background:var(--papel);border:1px solid var(--borde);border-top:3px solid var(--oliva);
+    border-radius:3px;padding:14px;margin-bottom:12px;text-align:center;
+  }
+  .totalCampo .c{font-family:var(--serif);font-size:34px;font-weight:700;color:var(--oliva);
+                 line-height:1.05;font-variant-numeric:tabular-nums}
+  .totalCampo .l{font-size:11.5px;color:var(--gris);text-transform:uppercase;letter-spacing:1.4px}
+  .totalCampo .h{font-size:12.5px;color:var(--gris);font-style:italic;margin-top:5px}
+  .mapa .lote.sel path{stroke:var(--ladrillo);stroke-width:3}
+  .mapa .lote.apagado{opacity:.35}
+  .panel{background:var(--papel);border:2px solid var(--oliva);border-radius:3px;
+         padding:15px;margin-bottom:12px;box-shadow:0 3px 12px rgba(43,31,24,.14)}
+  .panel .cab{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .panel .nom{font-family:var(--serif);font-size:19px;font-weight:700;color:var(--oliva)}
+  .panel .nom small{display:block;font-size:12px;font-weight:400;color:var(--gris);
+                    font-style:italic;margin-top:2px}
+  .panel .cerrar{font-size:26px;color:var(--gris);cursor:pointer;line-height:1;padding:0 4px}
+  .panel .acc{display:flex;gap:8px;margin-top:14px}
+  .panel .acc button{flex:1;padding:13px 6px;border-radius:2px;cursor:pointer;
+    font-family:var(--serif);font-size:13.5px;font-weight:700;letter-spacing:.8px;
+    text-transform:uppercase;border:1px solid var(--oliva);background:var(--oliva);color:#f6f4e6}
+  .panel .acc button.sec2{background:#fff;color:var(--oliva)}
+  .cats{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+  .cat{background:var(--oliva-claro);border:1px solid #cbd3b4;border-radius:2px;
+       padding:8px 12px;cursor:pointer;text-align:center;min-width:84px}
+  .cat b{display:block;font-family:var(--serif);font-size:21px;color:var(--oliva);
+         font-variant-numeric:tabular-nums;line-height:1.1}
+  .cat span{font-size:11.5px;color:#5b6640}
+  .cat.mas{background:#fff;border-style:dashed}
+  .cat.mas b{color:var(--gris)}
   .resumenCampos{display:flex;gap:10px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px}
   .campoCard{
     flex:1 0 46%;background:var(--papel);border:1px solid var(--borde);
@@ -1057,92 +1193,51 @@
 
 <!-- ==================== MÓDULO STOCK ==================== -->
 <section id="moduloStock" style="display:none">
-  <nav>
-    <button id="sTabMapa" class="on" onclick="sVerTab('mapa')">Existencia</button>
-    <button id="sTabMovs" onclick="sVerTab('movs')">Movimientos</button>
-    <button id="sTabCargar" onclick="sVerTab('cargar')">Cargar</button>
-  </nav>
-
   <main>
+    <div id="sBarraModo" class="barraModo" style="display:none"></div>
 
-  <section id="sSecMapa">
-    <div id="sTarjetas" class="resumenCampos"></div>
+    <div class="haciendaHoy">
+      <div class="rot">Hacienda hoy</div>
+      <div class="num" id="sTotalGeneral">0</div>
+      <div class="sub" id="sSubGeneral">cabezas</div>
+    </div>
+
+    <button class="btnGrande" id="sBtnMover" onclick="sModoMover()">Mover animales</button>
+    <button class="btnMedio" id="sBtnContar" onclick="sModoContar()">Contar de nuevo</button>
+
+    <div class="grillaCampos" id="sGrillaCampos"></div>
+
+    <div class="encCampo" id="sEncCampo"></div>
     <div id="sMapa"></div>
-    <div id="sTabla"></div>
-  </section>
+    <div id="sPanel"></div>
+    <div id="sLista"></div>
 
-  <section id="sSecMovs" style="display:none">
-    <div class="titulo">Últimos movimientos</div>
-    <div id="sListaMovs"></div>
-  </section>
-
-  <section id="sSecCargar" style="display:none">
-    <div class="card">
-      <label>¿Qué querés hacer?</label>
-      <div class="chips" id="sChipsAccion"></div>
-      <div class="hint" id="sHintAccion"></div>
+    <div class="pieStock">
+      <span class="linkChico" onclick="sVerMovs()">movimientos</span> ·
+      <span class="linkChico" onclick="sVerAjustes()">ajustes del campo</span> ·
+      <span class="linkChico" onclick="sJuntar()">juntar dos lotes</span>
     </div>
 
-    <div class="card">
-      <div class="row">
-        <div>
-          <label>Fecha</label>
-          <input type="date" id="sFecha">
-        </div>
-        <div>
-          <label>Quién lo carga</label>
-          <select id="sResponsable"></select>
+    <div id="sSecMovs" style="display:none">
+      <div class="titulo">Últimos movimientos</div>
+      <div id="sListaMovs"></div>
+    </div>
+
+    <div id="sSecAjustes" style="display:none">
+      <div class="card">
+        <label>Importar lotes desde un geojson</label>
+        <select id="sGeoCampo" style="margin-bottom:9px"></select>
+        <input type="file" id="sInputGeo" accept=".geojson,.json,application/geo+json,application/json"
+               style="display:none" onchange="sImportarGeo(this)">
+        <button class="btn sec" onclick="document.getElementById('sInputGeo').click()">
+          🗺️ Elegir archivo
+        </button>
+        <div class="hint" id="sHintGeo">
+          Si el archivo ya trae el campo adentro, dejá el desplegable sin elegir.
+          Las hectáreas se calculan solas.
         </div>
       </div>
     </div>
-
-    <div class="card">
-      <label id="sLblDesde">¿En qué potrero?</label>
-      <select id="sPotDesde" onchange="sPintarLineas()"></select>
-    </div>
-
-    <div class="card" id="sCardHacia" style="display:none">
-      <label>¿A qué potrero van?</label>
-      <select id="sPotHacia"></select>
-    </div>
-
-    <div class="card">
-      <label id="sLblAnimales">Animales</label>
-      <div class="editor">
-        <div class="row">
-          <select id="sCatNueva"></select>
-          <input type="number" id="sCantNueva" class="chico" placeholder="Cant." inputmode="numeric">
-        </div>
-        <button class="btn sec" style="margin-top:11px" onclick="sAgregarLinea()">+ Agregar</button>
-        <div class="hint" id="sHintDisponible"></div>
-      </div>
-      <div id="sListaLineas" style="margin-top:12px"></div>
-      <div class="total" id="sTotalLineas"></div>
-    </div>
-
-    <div class="card">
-      <label>Observaciones <span class="opt">— opcional</span></label>
-      <textarea id="sObs"></textarea>
-    </div>
-
-    <button class="btn" id="sBtnGuardar" onclick="sGuardar()">Guardar</button>
-
-    <div class="card" id="sCardGeo" style="margin-top:18px">
-      <label>Mapa de los campos</label>
-      <input type="file" id="sInputGeo" accept=".geojson,.json,application/geo+json,application/json"
-             style="display:none" onchange="sImportarGeo(this)">
-      <select id="sGeoCampo" style="margin-bottom:9px"></select>
-      <button class="btn sec" onclick="document.getElementById('sInputGeo').click()">
-        🗺️ Importar geojson de los lotes
-      </button>
-      <div class="hint" id="sHintGeo">
-        Dibujalos en <b>geojson.io</b>, exportá el archivo y subilo acá. Elegí arriba a qué campo
-        pertenecen los que vas a importar: hacé un archivo por campo y es lo más rápido.
-        Calcula las hectáreas solo.
-      </div>
-    </div>
-  </section>
-
   </main>
 </section>
 
@@ -4075,85 +4170,479 @@ function ctaGuardarPago(){
 
 /* =======================================================================
    ========================= MÓDULO STOCK ================================
+   El diseño salió de Claude Design. Arriba el total, abajo las dos acciones
+   que más se usan bien grandes, después los campos, el mapa y la lista.
    ======================================================================= */
 var sStock = { campos: [], huerfanos: [] };
-var sMovs = [], sPotreros = [], sLineas = [], sAccion = 'Movimiento';
-
-var ACCIONES_STOCK = [
-  { nombre:'Movimiento', hacia:true,
-    ayuda:'Pasar animales de un potrero a otro. Es lo que más se usa.' },
-  { nombre:'Inicial', hacia:false,
-    ayuda:'La primera carga: cuántos hay hoy en cada potrero. Se hace una vez por potrero.' },
-  { nombre:'Ajuste', hacia:false,
-    ayuda:'Después de contar de verdad. Poné la diferencia: 3 si aparecieron, -3 si faltan.' }
-];
+var sMovs = [], sPotreros = [];
+var sVista = '';          // campo que se está mirando, o 'Feedlot'
+var sSel = null;          // lote tocado {campo, nombre}
+var sModo = null;         // null | 'mover-origen' | 'mover-destino' | 'contar' | 'juntar'
+var sMoviendo = null;     // lote de origen mientras se mueve
 
 function sInit(){
-  document.getElementById('sFecha').value = hoyISO();
-  llenarSelect('sResponsable', RESPONSABLES_CAMPO);
-  llenarSelect('sCatNueva', CATEGORIAS, 'Categoría');
-  llenarSelect('sGeoCampo', CAMPOS, '¿De qué campo son estos lotes?');
-  pintarChipsSimple('sChipsAccion', ACCIONES_STOCK.map(function(a){return a.nombre;}), sElegirAccion);
-  sElegirAccion('Movimiento');
+  llenarSelect('sGeoCampo', CAMPOS, 'El archivo ya trae el campo');
 }
 
-function sElegirAccion(n){
-  sAccion = n;
-  marcarChip('sChipsAccion', n);
-  var a = null;
-  ACCIONES_STOCK.forEach(function(x){ if (x.nombre === n) a = x; });
-  document.getElementById('sCardHacia').style.display = (a && a.hacia) ? 'block' : 'none';
-  document.getElementById('sLblDesde').textContent = (a && a.hacia) ? '¿De qué potrero salen?' : '¿En qué potrero?';
-  document.getElementById('sHintAccion').textContent = a ? a.ayuda : '';
-  document.getElementById('sLblAnimales').innerHTML = (n === 'Ajuste')
-    ? 'Diferencia <span class="opt">— puede ser negativa</span>' : 'Animales';
-  sLineas = [];
-  sPintarLineas();
+/* ---------- vistas ---------- */
+function sVistas(){
+  var campos = [], hayCorral = false;
+  (sStock.campos || []).forEach(function(c){
+    var tienePotrero = false;
+    c.potreros.forEach(function(p){
+      if (p.tipo === 'Corral') hayCorral = true; else tienePotrero = true;
+    });
+    if (tienePotrero && campos.indexOf(c.campo) < 0) campos.push(c.campo);
+  });
+  if (hayCorral) campos.unshift('Feedlot');
+  return campos;
 }
 
+function sLotes(vista){
+  var out = [];
+  (sStock.campos || []).forEach(function(c){
+    c.potreros.forEach(function(p){
+      var esCorral = (p.tipo === 'Corral');
+      var entra = (vista === 'Feedlot') ? esCorral : (c.campo === vista && !esCorral);
+      if (entra) out.push({ campo: c.campo, p: p });
+    });
+  });
+  out.sort(function(a,b){
+    return String(a.p.nombre).localeCompare(String(b.p.nombre), 'es', {numeric:true});
+  });
+  return out;
+}
+
+function sElegirVista(v){
+  sVista = v; sSel = null;
+  sPintar();
+}
+
+/* ---------- carga ---------- */
 function sCargarTodo(){
   if (MODO_DEMO){
-    // En prueba el stock se calcula igual que en el servidor, pero contra lo
-    // guardado en el navegador. Así se puede evaluar de verdad sin instalar nada.
     sPotreros = leerDemo('potreros_demo');
     var movs = leerDemo('existencia_demo');
     sStock = sCalcularStock(sPotreros, movs);
     sMovs = sAgruparMovs(movs);
-    sLlenarPotreros();
-    sPintarTodo();
-    sPintarMovs();
+    sTrasCargar();
     return;
   }
-  google.script.run.withSuccessHandler(function(d){ sPotreros = d || []; sLlenarPotreros(); })
-    .withFailureHandler(function(){ sPotreros = []; }).getPotreros(CODIGO);
-  google.script.run.withSuccessHandler(function(d){ sStock = d || {campos:[],huerfanos:[]}; sPintarTodo(); })
-    .withFailureHandler(function(){ sPintarTodo(); }).getStock(CODIGO);
-  google.script.run.withSuccessHandler(function(d){ sMovs = d || []; sPintarMovs(); })
-    .withFailureHandler(function(){ sMovs = []; }).getMovimientosStock(CODIGO);
+  google.script.run
+    .withSuccessHandler(function(d){ sPotreros = d || []; })
+    .withFailureHandler(function(){ sPotreros = []; })
+    .getPotreros(CODIGO);
+  google.script.run
+    .withSuccessHandler(function(d){ sStock = d || {campos:[],huerfanos:[]}; sTrasCargar(); })
+    .withFailureHandler(function(e){
+      sStock = {campos:[],huerfanos:[]}; sTrasCargar();
+      aviso('No pude traer el stock: ' + e.message, true);
+    })
+    .getStock(CODIGO);
+  google.script.run
+    .withSuccessHandler(function(d){ sMovs = d || []; sPintarMovs(); })
+    .withFailureHandler(function(){ sMovs = []; })
+    .getMovimientosStock(CODIGO);
 }
 
-function sLlenarPotreros(){
-  [ 'sPotDesde', 'sPotHacia' ].forEach(function(id){
-    var sel = document.getElementById(id);
-    var actual = sel.value;
-    sel.innerHTML = '';
-    var o = document.createElement('option');
-    o.value = ''; o.textContent = 'Elegí un potrero';
-    sel.appendChild(o);
-    sPotreros.forEach(function(p){
-      var op = document.createElement('option');
-      op.value = p.campo + '||' + p.nombre;
-      op.textContent = p.campo + ' · ' + p.nombre;
-      sel.appendChild(op);
+function sTrasCargar(){
+  var vistas = sVistas();
+  if (!sVista || vistas.indexOf(sVista) < 0) sVista = vistas[0] || '';
+  sPintar();
+}
+
+/* ---------- pintar ---------- */
+function sPintar(){
+  var vistas = sVistas();
+  var lotes = sLotes(sVista);
+
+  /* barra roja mientras se está en un modo */
+  var barra = document.getElementById('sBarraModo');
+  var txt = '';
+  if (sModo === 'mover-origen') txt = 'Tocá el lote de <b>donde salen</b> los animales.';
+  else if (sModo === 'mover-destino') txt = 'Salen de <b>' + escapar(sMoviendo.nombre) +
+    '</b>.<br>Tocá el lote <b>a donde van</b>.';
+  else if (sModo === 'contar') txt = 'Tocá el lote que <b>contaste</b>.';
+  else if (sModo === 'juntar-a') txt = 'Tocá el lote que <b>queda</b>.';
+  else if (sModo === 'juntar-b') txt = 'Queda <b>' + escapar(sMoviendo.nombre) +
+    '</b>.<br>Tocá el que <b>desaparece</b>.';
+
+  if (txt){
+    barra.style.display = 'flex';
+    barra.innerHTML = '<div>' + txt + '</div><span onclick="sCancelarModo()">Cancelar</span>';
+  } else barra.style.display = 'none';
+
+  /* total general */
+  var totGen = 0, ocupados = 0;
+  (sStock.campos || []).forEach(function(c){
+    c.potreros.forEach(function(p){ totGen += p.cabezas; if (p.cabezas > 0) ocupados++; });
+  });
+  document.getElementById('sTotalGeneral').textContent = totGen.toLocaleString('es-AR');
+  document.getElementById('sSubGeneral').textContent =
+    'cabezas · ' + ocupados + ' lote' + (ocupados === 1 ? '' : 's') + ' ocupado' + (ocupados === 1 ? '' : 's');
+
+  /* grilla de campos */
+  var g = document.getElementById('sGrillaCampos');
+  g.style.gridTemplateColumns = 'repeat(' + Math.max(1, vistas.length) + ',1fr)';
+  g.innerHTML = vistas.map(function(v){
+    var t = 0;
+    sLotes(v).forEach(function(l){ t += l.p.cabezas; });
+    return '<div class="cq' + (v === sVista ? ' on' : '') + '" ' +
+      'onclick="sElegirVista(\'' + escapar(v) + '\')">' +
+      '<div class="n">' + escapar(sCorto(v)) + '</div>' +
+      '<div class="v">' + t.toLocaleString('es-AR') + '</div></div>';
+  }).join('');
+
+  /* encabezado del campo */
+  var cab = 0, has = 0, ocu = 0;
+  lotes.forEach(function(l){ cab += l.p.cabezas; has += l.p.hectareas; if (l.p.cabezas) ocu++; });
+  document.getElementById('sEncCampo').innerHTML = lotes.length
+    ? '<div class="n">' + escapar(sVista) + '</div>' +
+      '<div class="d">' + lotes.length + ' lotes' +
+        (has ? ' · ' + Math.round(has).toLocaleString('es-AR') + ' ha' : '') + '</div>' +
+      '<i></i><div class="t">' + cab.toLocaleString('es-AR') + '</div>'
+    : '';
+
+  sPintarMapa(lotes);
+  sPintarPanel();
+  sPintarLista(lotes);
+}
+
+function sCorto(v){
+  return String(v).replace('Don Antonino', 'D. Antonino');
+}
+
+function sPintarLista(lotes){
+  var c = document.getElementById('sLista');
+  if (!lotes.length){
+    c.innerHTML = '<div class="vacio">No hay lotes cargados todavía.<br>' +
+      'Importá el mapa desde "ajustes del campo", acá abajo.</div>';
+    return;
+  }
+  c.innerHTML = lotes.map(function(l){
+    var det, clase = 'det';
+    if (l.p.cabezas){
+      det = l.p.categorias.map(function(x){ return x.cantidad + ' ' + x.categoria.toLowerCase(); })
+             .join(' · ');
+    } else if (l.p.descanso !== null && l.p.descanso !== undefined){
+      det = 'descansando hace ' + l.p.descanso + ' día' + (l.p.descanso === 1 ? '' : 's');
+      clase = 'det desc';
+    } else {
+      det = 'vacío'; clase = 'det desc';
+    }
+    var sel = (sSel && sSel.campo === l.campo && sSel.nombre === l.p.nombre);
+    return '<div class="loteFila' + (l.p.cabezas ? '' : ' vacia') + (sel ? ' sel' : '') + '" ' +
+      'onclick="sTocar(\'' + escapar(l.campo) + '\',\'' + escapar(l.p.nombre) + '\')">' +
+      '<div class="izq">' +
+        '<div class="nom">' + escapar(l.p.nombre) +
+          (l.p.hectareas ? ' <small>' + l.p.hectareas.toLocaleString('es-AR') + ' ha</small>' : '') +
+        '</div>' +
+        '<div class="' + clase + '">' + det + '</div>' +
+      '</div>' +
+      '<div class="cab">' + (l.p.cabezas || 0) + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+/* ---------- mapa ---------- */
+function sPintarMapa(lotes){
+  var cont = document.getElementById('sMapa');
+  var conGeo = lotes.filter(function(l){ return l.p.geo; });
+  if (!conGeo.length){ cont.innerHTML = ''; return; }
+
+  var minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
+  conGeo.forEach(function(l){
+    sAnillos(l.p.geo).forEach(function(a){
+      a.forEach(function(pt){
+        if (pt[0] < minX) minX = pt[0];
+        if (pt[0] > maxX) maxX = pt[0];
+        if (pt[1] < minY) minY = pt[1];
+        if (pt[1] > maxY) maxY = pt[1];
+      });
     });
-    if (actual) sel.value = actual;
+  });
+  if (minX > maxX){ cont.innerHTML = ''; return; }
+
+  var W = 1000, pad = 16;
+  var k = Math.cos((minY + maxY) / 2 * Math.PI / 180);
+  var anchoGeo = (maxX - minX) * k || 1;
+  var altoGeo  = (maxY - minY) || 1;
+  var H = Math.max(240, Math.min(760, Math.round(W * altoGeo / anchoGeo)));
+
+  function px(pt){
+    return [ pad + ((pt[0] - minX) * k / anchoGeo) * (W - 2*pad),
+             pad + (H - 2*pad) - ((pt[1] - minY) / altoGeo) * (H - 2*pad) ];
+  }
+
+  var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg">';
+  conGeo.forEach(function(l){
+    var d = '';
+    sAnillos(l.p.geo).forEach(function(a){
+      a.forEach(function(pt, i){
+        var q = px(pt);
+        d += (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1) + ' ';
+      });
+      d += 'Z ';
+    });
+    var cen = sCentro(l.p.geo, px);
+    var sel = (sSel && sSel.campo === l.campo && sSel.nombre === l.p.nombre);
+    var apagado = sMoviendo && sMoviendo.campo === l.campo && sMoviendo.nombre === l.p.nombre;
+
+    svg += '<g class="lote' + (sel ? ' sel' : '') + (apagado ? ' apagado' : '') + '" ' +
+      'onclick="sTocar(\'' + escapar(l.campo) + '\',\'' + escapar(l.p.nombre) + '\')">' +
+      '<path d="' + d + '" fill="' + sColor(l.p) + '"/>' +
+      '<text x="' + cen[0].toFixed(0) + '" y="' + cen[1].toFixed(0) + '" fill="' +
+        (l.p.cabezas && sCarga(l.p) >= 1.5 ? '#f6f4e6' : '#2b1f18') + '">' +
+        escapar(l.p.nombre) + '</text>' +
+      (l.p.cabezas ? '<text x="' + cen[0].toFixed(0) + '" y="' + (cen[1]+12).toFixed(0) +
+        '" fill="' + (sCarga(l.p) >= 1.5 ? '#f6f4e6' : '#2b1f18') +
+        '" style="font-weight:700;font-size:11px">' + l.p.cabezas + '</text>' : '') +
+    '</g>';
+  });
+  svg += '</svg>';
+
+  cont.innerHTML = '<div class="cajaMapa"><div class="mapa">' + svg + '</div>' +
+    '<div class="refMapa">' +
+      '<span class="m" style="background:#f3ede1;border:1px solid #ddd0b8"></span>vacío' +
+      '<span class="m" style="background:#c8cfae"></span>poco' +
+      '<span class="m" style="background:#46562a"></span>lleno' +
+      '<i></i>tocá un lote' +
+    '</div></div>';
+}
+
+function sCarga(p){ return p.hectareas ? (p.cabezas / p.hectareas) : (p.cabezas ? 99 : 0); }
+
+function sColor(p){
+  if (!p.cabezas) return '#f3ede1';
+  var c = sCarga(p);
+  if (c < 0.6) return '#dfe5cd';
+  if (c < 1.5) return '#c8cfae';
+  if (c < 4)   return '#8ba86a';
+  return '#46562a';
+}
+
+/* ---------- modos ---------- */
+function sModoMover(){
+  sModo = 'mover-origen'; sMoviendo = null; sSel = null;
+  sPintar(); window.scrollTo({top:0, behavior:'smooth'});
+}
+function sModoContar(){
+  sModo = 'contar'; sMoviendo = null; sSel = null;
+  sPintar(); window.scrollTo({top:0, behavior:'smooth'});
+}
+function sJuntar(){
+  sModo = 'juntar-a'; sMoviendo = null; sSel = null;
+  sPintar(); window.scrollTo({top:0, behavior:'smooth'});
+}
+function sCancelarModo(){ sModo = null; sMoviendo = null; sPintar(); }
+
+/* ---------- tocar un lote ---------- */
+function sTocar(campo, nombre){
+  var p = sBuscar(campo, nombre);
+
+  if (sModo === 'mover-origen'){
+    if (!p || !p.cabezas){ aviso('Ese lote está vacío', true); return; }
+    sMoviendo = {campo:campo, nombre:nombre};
+    sModo = 'mover-destino';
+    sPintar();
+    return;
+  }
+  if (sModo === 'mover-destino'){
+    if (sMoviendo.campo === campo && sMoviendo.nombre === nombre){
+      aviso('Ese es el lote de donde salen', true); return;
+    }
+    sPedirCuantos(sMoviendo, {campo:campo, nombre:nombre});
+    return;
+  }
+  if (sModo === 'contar'){
+    sModo = null; sSel = {campo:campo, nombre:nombre};
+    sPintar();
+    if (!p || !p.categorias.length){ sAgregar(); return; }
+    if (p.categorias.length === 1) sCorregir(p.categorias[0].categoria);
+    else sElegirDeLista('¿Qué contaste en ' + p.nombre + '?',
+      p.categorias.map(function(x){ return x.cantidad + ' ' + x.categoria; }),
+      function(t, i){ sCorregir(p.categorias[i].categoria); });
+    return;
+  }
+  if (sModo === 'juntar-a'){
+    sMoviendo = {campo:campo, nombre:nombre};
+    sModo = 'juntar-b';
+    sPintar();
+    return;
+  }
+  if (sModo === 'juntar-b'){
+    if (sMoviendo.campo === campo && sMoviendo.nombre === nombre){
+      aviso('Elegí otro lote', true); return;
+    }
+    var queda = sMoviendo, seVa = {campo:campo, nombre:nombre};
+    sModo = null; sMoviendo = null;
+    pedirConfirmacion(
+      'Va a quedar <b>' + escapar(queda.nombre) + '</b> y desaparece <b>' +
+      escapar(seVa.nombre) + '</b>.<br><br>Se suman las hectáreas, los animales pasan al que ' +
+      'queda y los dos dibujos se unen.',
+      function(){
+        if (MODO_DEMO){ aviso('Juntar lotes necesita el servidor', true); sPintar(); return; }
+        google.script.run
+          .withSuccessHandler(function(r){
+            if (r && r.ok === false){ aviso(r.error || 'No se pudo', true); return; }
+            sCargarTodo(); aviso('✓ Lotes juntados');
+          })
+          .withFailureHandler(function(e){ aviso('No se pudo: ' + e.message, true); })
+          .juntarPotreros(CODIGO, {campo:queda.campo, destino:queda.nombre,
+                                   campoOrigen:seVa.campo, origen:seVa.nombre,
+                                   responsable:(USUARIO && USUARIO.nombre) || ''});
+      }, { boton:'Juntar' });
+    sPintar();
+    return;
+  }
+
+  sSel = { campo: campo, nombre: nombre };
+  sPintar();
+  var el = document.getElementById('sPanel');
+  if (el && el.firstChild) el.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function sPintarPanel(){
+  var cont = document.getElementById('sPanel');
+  if (!sSel || sModo){ cont.innerHTML = ''; return; }
+  var p = sBuscar(sSel.campo, sSel.nombre);
+  if (!p){ cont.innerHTML = ''; sSel = null; return; }
+
+  var cats = p.categorias.map(function(x){
+    return '<div class="cat" onclick="sCorregir(\'' + escapar(x.categoria) + '\')">' +
+      '<b>' + x.cantidad + '</b><span>' + escapar(x.categoria) + '</span></div>';
+  }).join('');
+
+  var sub = escapar(sSel.campo) +
+    (p.hectareas ? ' · ' + p.hectareas.toLocaleString('es-AR') + ' ha' : '') +
+    (p.cabezas && p.hectareas ? ' · ' + (Math.round(p.cabezas/p.hectareas*10)/10) + ' cab/ha' : '') +
+    ((!p.cabezas && p.descanso != null) ? ' · descansando hace ' + p.descanso + ' días' : '');
+
+  cont.innerHTML =
+    '<div class="panel">' +
+      '<div class="cab2">' +
+        '<div class="nom">' + escapar(p.nombre) + '<small>' + sub + '</small></div>' +
+        '<div class="cerrar" onclick="sCerrarPanel()">×</div>' +
+      '</div>' +
+      '<div class="cats">' + cats +
+        '<div class="cat mas" onclick="sAgregar()"><b>+</b><span>agregar</span></div>' +
+      '</div>' +
+      '<div class="hint">' + (p.cabezas
+        ? 'Tocá un número para corregirlo si contaste y no da.'
+        : 'Está vacío. Tocá <b>+ agregar</b> para cargar lo que hay.') + '</div>' +
+      '<div class="acc">' +
+        (p.cabezas ? '<button onclick="sMoverDesdePanel()">Mover</button>' : '') +
+        '<button class="' + (p.cabezas ? 'sec2' : '') + '" onclick="sEditarLote()">Editar lote</button>' +
+      '</div>' +
+    '</div>';
+}
+
+function sCerrarPanel(){ sSel = null; sPintar(); }
+
+function sMoverDesdePanel(){
+  if (!sSel) return;
+  sMoviendo = {campo:sSel.campo, nombre:sSel.nombre};
+  sModo = 'mover-destino';
+  sSel = null;
+  sPintar();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ---------- agregar ---------- */
+function sAgregar(){
+  if (!sSel) return;
+  var lote = {campo:sSel.campo, nombre:sSel.nombre};
+  sElegirDeLista('¿Qué categoría?', CATEGORIAS, function(cat){
+    pedirConfirmacion(
+      '¿Cuántos <b>' + escapar(cat) + '</b> hay en <b>' + escapar(lote.nombre) + '</b>?',
+      function(txt){
+        var n = parseInt(txt, 10);
+        if (!n || n <= 0){ aviso('Poné un número', true); return; }
+        sMandar('Inicial', [{campo:lote.campo, potrero:lote.nombre, categoria:cat, cantidad:n}]);
+      },
+      { boton:'Agregar', input:'Cantidad' });
   });
 }
 
-/**
- * Mismo cálculo que hace el servidor: suma el libro de movimientos y lo cruza
- * con los potreros. Está acá para que el modo prueba dé exactamente igual.
- */
+/* ---------- corregir contando ---------- */
+function sCorregir(cat){
+  if (!sSel) return;
+  var lote = {campo:sSel.campo, nombre:sSel.nombre};
+  var p = sBuscar(lote.campo, lote.nombre);
+  var hay = 0;
+  (p.categorias || []).forEach(function(x){ if (x.categoria === cat) hay = x.cantidad; });
+
+  pedirConfirmacion(
+    'Figuran <b>' + hay + ' ' + escapar(cat) + '</b> en ' + escapar(lote.nombre) +
+    '.<br><br>¿Cuántos hay de verdad?',
+    function(txt){
+      if (txt === '') return;
+      var n = parseInt(txt, 10);
+      if (isNaN(n) || n < 0){ aviso('Poné un número', true); return; }
+      var dif = n - hay;
+      if (!dif){ aviso('Quedó igual'); return; }
+      sMandar('Ajuste', [{campo:lote.campo, potrero:lote.nombre, categoria:cat, cantidad:dif}]);
+    },
+    { boton:'Corregir', input:'Cantidad real' });
+}
+
+/* ---------- mover ---------- */
+function sPedirCuantos(desde, hacia){
+  var p = sBuscar(desde.campo, desde.nombre);
+  var cats = (p && p.categorias) ? p.categorias.filter(function(x){ return x.cantidad > 0; }) : [];
+  if (!cats.length){ aviso('Ese lote está vacío', true); sCancelarModo(); return; }
+
+  function pedirCantidad(cat, hay){
+    pedirConfirmacion(
+      'De <b>' + escapar(desde.nombre) + '</b> a <b>' + escapar(hacia.nombre) + '</b>' +
+      '<br><br>Hay ' + hay + ' ' + escapar(cat) + '. ¿Cuántos pasás?',
+      function(txt){
+        var n = parseInt(txt, 10);
+        if (!n || n <= 0){ aviso('Poné un número', true); return; }
+        if (n > hay){ aviso('Solo hay ' + hay, true); return; }
+        sMandar('Movimiento', [
+          {campo:desde.campo, potrero:desde.nombre, categoria:cat, cantidad:-n},
+          {campo:hacia.campo, potrero:hacia.nombre, categoria:cat, cantidad:n}
+        ]);
+        sModo = null; sMoviendo = null;
+      },
+      { boton:'Mover', input:'Cantidad (todos: ' + hay + ')' });
+  }
+
+  if (cats.length === 1) pedirCantidad(cats[0].categoria, cats[0].cantidad);
+  else sElegirDeLista('¿Qué movés?',
+    cats.map(function(x){ return x.cantidad + ' ' + x.categoria; }),
+    function(txt, i){ pedirCantidad(cats[i].categoria, cats[i].cantidad); });
+}
+
+/* ---------- editar el lote ---------- */
+function sEditarLote(){
+  if (!sSel) return;
+  var lote = {campo:sSel.campo, nombre:sSel.nombre};
+  var p = sBuscar(lote.campo, lote.nombre);
+  var otroTipo = (p.tipo === 'Corral') ? 'Potrero' : 'Corral';
+
+  sElegirDeLista('¿Qué hacés con ' + p.nombre + '?',
+    ['Cambiarle el nombre', 'Pasarlo a ' + otroTipo.toLowerCase(), 'Borrarlo'],
+    function(txt, i){
+      if (i === 0){
+        pedirConfirmacion('Nombre nuevo para <b>' + escapar(p.nombre) + '</b>:',
+          function(nuevo){
+            if (!nuevo){ aviso('Escribí un nombre', true); return; }
+            sMandarLote({campo:lote.campo, nombre:lote.nombre, nuevoNombre:nuevo});
+          }, { boton:'Cambiar', input:p.nombre });
+      } else if (i === 1){
+        sMandarLote({campo:lote.campo, nombre:lote.nombre, nuevoTipo:otroTipo});
+      } else {
+        var extra = p.cabezas
+          ? '<br><br><b>Ojo:</b> tiene ' + p.cabezas + ' cabezas. Van a quedar sin lote.' : '';
+        pedirConfirmacion('¿Borrar <b>' + escapar(p.nombre) + '</b>?' + extra,
+          function(){ sMandarLote({campo:lote.campo, nombre:lote.nombre, borrar:true}); });
+      }
+    });
+}
+
+
 function sCalcularStock(potreros, movs){
   var acum = {};
   (movs || []).forEach(function(m){
@@ -4217,7 +4706,6 @@ function sAgruparMovs(movs){
   return l.slice(0, 40);
 }
 
-/** Hectáreas de un polígono. Misma fórmula que usa el servidor. */
 function sAreaHectareas(geo){
   var anillos = sAnillos(geo);
   if (!anillos.length) return 0;
@@ -4234,137 +4722,6 @@ function sAreaHectareas(geo){
   return total / 10000;
 }
 
-/* ---------- existencia ---------- */
-function sPintarTodo(){
-  var tc = document.getElementById('sTarjetas');
-  tc.innerHTML = (sStock.campos || []).map(function(c){
-    return '<div class="campoCard">' +
-      '<div class="n">' + escapar(c.campo) + '</div>' +
-      '<div class="h">' + (c.hectareas ? Math.round(c.hectareas).toLocaleString('es-AR') + ' has' : '&nbsp;') + '</div>' +
-      '<div class="c">' + c.cabezas.toLocaleString('es-AR') + ' <span>CABEZAS</span></div>' +
-    '</div>';
-  }).join('');
-
-  sPintarMapa();
-
-  var cont = document.getElementById('sTabla');
-  if (!(sStock.campos || []).length){
-    cont.innerHTML = '<div class="vacio">Todavía no hay potreros cargados.<br>' +
-      'Cargalos en la hoja Potreros de la planilla, o importá el geojson desde la solapa Cargar.</div>';
-    return;
-  }
-
-  var html = '';
-  sStock.campos.forEach(function(c){
-    html += '<div class="titulo">' + escapar(c.campo) + '</div>';
-    var lista = c.potreros.slice().sort(function(a,b){ return b.cabezas - a.cabezas; });
-    html += lista.map(function(p){ return sTarjetaPotrero(c.campo, p); }).join('');
-  });
-
-  if ((sStock.huerfanos || []).length){
-    html += '<div class="titulo rojo">Sin potrero reconocido</div>';
-    html += sStock.huerfanos.map(function(h){
-      return '<div class="pot" style="border-left-color:var(--ladrillo)">' +
-        '<div class="top"><div class="n">' + escapar(h.potrero) +
-        ' <small>' + escapar(h.campo) + '</small></div>' +
-        '<div class="c">' + h.cabezas + '</div></div>' +
-        '<div class="badges">' + h.categorias.map(function(x){
-          return '<span class="badge2">' + x.cantidad + ' ' + escapar(x.categoria) + '</span>';
-        }).join('') + '</div>' +
-        '<div class="descanso">Ese potrero no está en la hoja Potreros, o está escrito distinto.</div>' +
-      '</div>';
-    }).join('');
-  }
-
-  cont.innerHTML = html;
-}
-
-function sTarjetaPotrero(campo, p){
-  var badges = p.categorias.map(function(x){
-    return '<span class="badge2' + (x.cantidad < 0 ? ' neg' : '') + '">' +
-           x.cantidad + ' ' + escapar(x.categoria) + '</span>';
-  }).join('');
-
-  return '<div class="pot' + (p.cabezas ? '' : ' vacio') + '" ' +
-    'onclick="sDesdePotrero(\'' + escapar(campo) + '||' + escapar(p.nombre) + '\')">' +
-    '<div class="top">' +
-      '<div class="n">' + escapar(p.nombre) +
-        (p.hectareas ? ' <small>(' + p.hectareas + ' has)</small>' : '') + '</div>' +
-      '<div class="c">' + (p.cabezas || '—') + '</div>' +
-    '</div>' +
-    (badges ? '<div class="badges">' + badges + '</div>'
-            : '<div class="descanso">Vacío</div>') +
-  '</div>';
-}
-
-/** Tocar un potrero abre la carga con ese potrero ya elegido. */
-function sDesdePotrero(clave){
-  sVerTab('cargar');
-  document.getElementById('sPotDesde').value = clave;
-  sPintarLineas();
-  window.scrollTo(0,0);
-}
-
-/* ---------- mapa ---------- */
-function sPintarMapa(){
-  var cont = document.getElementById('sMapa');
-  var lotes = [];
-  (sStock.campos || []).forEach(function(c){
-    c.potreros.forEach(function(p){ if (p.geo) lotes.push({campo:c.campo, p:p}); });
-  });
-
-  if (!lotes.length){ cont.innerHTML = ''; return; }
-
-  // Bounding box de todos los lotes para encajarlos en el dibujo
-  var minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
-  lotes.forEach(function(l){
-    sAnillos(l.p.geo).forEach(function(a){
-      a.forEach(function(pt){
-        if (pt[0] < minX) minX = pt[0];
-        if (pt[0] > maxX) maxX = pt[0];
-        if (pt[1] < minY) minY = pt[1];
-        if (pt[1] > maxY) maxY = pt[1];
-      });
-    });
-  });
-  if (minX > maxX) { cont.innerHTML = ''; return; }
-
-  var W = 1000;
-  // la latitud se achica al alejarse del ecuador: si no, el campo sale estirado
-  var k = Math.cos((minY + maxY) / 2 * Math.PI / 180);
-  var anchoGeo = (maxX - minX) * k || 1;
-  var altoGeo = (maxY - minY) || 1;
-  var H = Math.max(220, Math.min(900, Math.round(W * altoGeo / anchoGeo)));
-
-  function px(pt){
-    return [ ((pt[0] - minX) * k / anchoGeo) * W,
-             H - ((pt[1] - minY) / altoGeo) * H ];
-  }
-
-  var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg">';
-  lotes.forEach(function(l){
-    var d = '';
-    sAnillos(l.p.geo).forEach(function(a){
-      a.forEach(function(pt, i){
-        var q = px(pt);
-        d += (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1) + ' ';
-      });
-      d += 'Z ';
-    });
-
-    var cen = sCentro(l.p.geo, px);
-    svg += '<g class="lote" onclick="sDesdePotrero(\'' + escapar(l.campo) + '||' + escapar(l.p.nombre) + '\')">' +
-      '<path d="' + d + '" fill="' + sColor(l.p) + '"/>' +
-      '<text x="' + cen[0].toFixed(0) + '" y="' + cen[1].toFixed(0) + '">' + escapar(l.p.nombre) + '</text>' +
-      (l.p.cabezas ? '<text x="' + cen[0].toFixed(0) + '" y="' + (cen[1] + 11).toFixed(0) +
-        '" style="font-weight:700">' + l.p.cabezas + '</text>' : '') +
-    '</g>';
-  });
-  svg += '</svg>';
-
-  cont.innerHTML = '<div class="mapa">' + svg + '</div>';
-}
-
 function sAnillos(geo){
   if (!geo) return [];
   if (geo.type === 'Polygon') return [geo.coordinates[0]];
@@ -4378,205 +4735,6 @@ function sCentro(geo, px){
   var sx = 0, sy = 0;
   a.forEach(function(pt){ var q = px(pt); sx += q[0]; sy += q[1]; });
   return [sx / a.length, sy / a.length];
-}
-
-/** Más cargado, más oscuro. Vacío queda en el verde clarito del lino. */
-function sColor(p){
-  if (!p.cabezas) return '#eae4d4';
-  var carga = p.hectareas ? (p.cabezas / p.hectareas) : 1;
-  if (carga < 0.5) return '#dbe3c6';
-  if (carga < 1.5) return '#b9c99b';
-  if (carga < 4)   return '#8ba86a';
-  return '#5f7f43';
-}
-
-/* ---------- movimientos ---------- */
-function sPintarMovs(){
-  var c = document.getElementById('sListaMovs');
-  if (!sMovs.length){ c.innerHTML = '<div class="vacio">Todavía no hay movimientos.</div>'; return; }
-
-  c.innerHTML = sMovs.map(function(m){
-    var salen = m.lineas.filter(function(l){ return l.cantidad < 0; });
-    var entran = m.lineas.filter(function(l){ return l.cantidad > 0; });
-
-    var txt;
-    if (m.tipo === 'Movimiento' && salen.length && entran.length){
-      txt = salen.map(function(l){ return Math.abs(l.cantidad) + ' ' + l.categoria; }).join(', ') +
-            '<br><span>' + escapar(salen[0].potrero) + ' → ' + escapar(entran[0].potrero) + '</span>';
-    } else {
-      txt = m.lineas.map(function(l){
-        return (l.cantidad > 0 ? '+' : '') + l.cantidad + ' ' + l.categoria +
-               ' <span>en ' + escapar(l.potrero || l.campo) + '</span>';
-      }).join('<br>');
-    }
-
-    var meta = [];
-    if (m.responsable) meta.push(m.responsable);
-    if (m.obs) meta.push(escapar(m.obs));
-
-    return '<div class="ev">' +
-      '<div class="top"><span class="fecha">' + fechaLinda(m.fecha) + '</span>' +
-      '<span class="campo">' + escapar(m.tipo) + '</span></div>' +
-      '<div class="lin" style="margin-top:6px">' + txt + '</div>' +
-      (meta.length ? '<div class="meta">' + meta.join(' · ') + '</div>' : '') +
-    '</div>';
-  }).join('');
-}
-
-/* ---------- cargar ---------- */
-function sDisponible(clave, categoria){
-  var partes = String(clave || '').split('||');
-  var res = 0;
-  (sStock.campos || []).forEach(function(c){
-    if (c.campo !== partes[0]) return;
-    c.potreros.forEach(function(p){
-      if (p.nombre !== partes[1]) return;
-      p.categorias.forEach(function(x){ if (x.categoria === categoria) res = x.cantidad; });
-    });
-  });
-  return res;
-}
-
-function sAgregarLinea(){
-  var cat = document.getElementById('sCatNueva').value;
-  var cant = parseInt(document.getElementById('sCantNueva').value, 10);
-
-  if (!cat){ aviso('Elegí la categoría', true); return; }
-  if (!cant){ aviso('Poné la cantidad', true); return; }
-  if (sAccion !== 'Ajuste' && cant < 0){ aviso('La cantidad tiene que ser positiva', true); return; }
-
-  if (sAccion === 'Movimiento'){
-    var hay = sDisponible(document.getElementById('sPotDesde').value, cat);
-    if (cant > hay){
-      aviso('En ese potrero hay ' + hay + ' ' + cat, true);
-      return;
-    }
-  }
-
-  sLineas.push({categoria:cat, cantidad:cant});
-  document.getElementById('sCatNueva').value = '';
-  document.getElementById('sCantNueva').value = '';
-  sPintarLineas();
-}
-
-function sBorrarLinea(i){ sLineas.splice(i,1); sPintarLineas(); }
-
-function sPintarLineas(){
-  var c = document.getElementById('sListaLineas');
-  var t = document.getElementById('sTotalLineas');
-
-  var clave = document.getElementById('sPotDesde').value;
-  var hint = document.getElementById('sHintDisponible');
-  if (clave && sAccion === 'Movimiento'){
-    var partes = clave.split('||');
-    var det = [];
-    (sStock.campos || []).forEach(function(cc){
-      if (cc.campo !== partes[0]) return;
-      cc.potreros.forEach(function(p){
-        if (p.nombre !== partes[1]) return;
-        p.categorias.forEach(function(x){ det.push(x.cantidad + ' ' + x.categoria); });
-      });
-    });
-    hint.textContent = det.length ? ('Hay: ' + det.join(', ')) : 'Ese potrero está vacío.';
-  } else {
-    hint.textContent = '';
-  }
-
-  if (!sLineas.length){
-    c.innerHTML = '<div class="vacio">Agregá al menos una categoría.</div>';
-    t.innerHTML = '';
-    return;
-  }
-
-  c.innerHTML = '';
-  var tot = 0;
-  sLineas.forEach(function(l, i){
-    tot += l.cantidad;
-    var d = document.createElement('div');
-    d.className = 'tanda';
-    d.innerHTML = '<div class="txt"><div class="cab"><b>' +
-      (l.cantidad > 0 && sAccion === 'Ajuste' ? '+' : '') + l.cantidad + '</b> ' +
-      escapar(l.categoria) + '</div></div>';
-    var x = document.createElement('span');
-    x.className = 'x'; x.textContent = '×';
-    x.onclick = (function(idx){ return function(){ sBorrarLinea(idx); }; })(i);
-    d.appendChild(x);
-    c.appendChild(d);
-  });
-  t.innerHTML = 'Total: <b>' + tot + '</b>';
-}
-
-function sGuardar(){
-  var fecha = document.getElementById('sFecha').value;
-  var resp = document.getElementById('sResponsable').value;
-  var desde = document.getElementById('sPotDesde').value;
-  var hacia = document.getElementById('sPotHacia').value;
-
-  if (!fecha){ aviso('Falta la fecha', true); return; }
-  if (!desde){ aviso('Elegí el potrero', true); return; }
-  if (!resp){ aviso('Indicá quién lo carga', true); return; }
-  if (!sLineas.length){ aviso('Agregá al menos una categoría', true); return; }
-  if (sAccion === 'Movimiento' && !hacia){ aviso('Elegí a dónde van', true); return; }
-  if (sAccion === 'Movimiento' && hacia === desde){ aviso('Es el mismo potrero', true); return; }
-
-  var d = desde.split('||'), h = (hacia || '').split('||');
-
-  if (MODO_DEMO){
-    var libro = leerDemo('existencia_demo');
-    var id = 'EX-' + (libro.length + 1);
-    var base = { id:id, fecha:fecha, tipo:sAccion, responsable:resp,
-                 obs: document.getElementById('sObs').value.trim() };
-    sLineas.forEach(function(l){
-      if (sAccion === 'Movimiento'){
-        libro.push(Object.assign({}, base, {campo:d[0], potrero:d[1],
-                   categoria:l.categoria, cantidad:-l.cantidad}));
-        libro.push(Object.assign({}, base, {campo:h[0], potrero:h[1],
-                   categoria:l.categoria, cantidad:l.cantidad}));
-      } else {
-        libro.push(Object.assign({}, base, {campo:d[0], potrero:d[1],
-                   categoria:l.categoria, cantidad:l.cantidad}));
-      }
-    });
-    guardarDemo('existencia_demo', libro);
-    sLineas = [];
-    document.getElementById('sObs').value = '';
-    sPintarLineas();
-    sCargarTodo();
-    aviso('✓ Guardado');
-    sVerTab('mapa');
-    return;
-  }
-  var btn = document.getElementById('sBtnGuardar');
-  btn.disabled = true; btn.textContent = 'Guardando...';
-
-  function ok(){
-    btn.disabled = false; btn.textContent = 'Guardar';
-    sLineas = [];
-    document.getElementById('sObs').value = '';
-    sPintarLineas();
-    sCargarTodo();
-    aviso('✓ Guardado');
-    sVerTab('mapa');
-  }
-  function mal(e){
-    btn.disabled = false; btn.textContent = 'Guardar';
-    aviso('No se pudo guardar: ' + e.message, true);
-  }
-
-  if (sAccion === 'Movimiento'){
-    google.script.run.withSuccessHandler(ok).withFailureHandler(mal).moverHacienda(CODIGO, {
-      fecha: fecha, campoDesde: d[0], potreroDesde: d[1],
-      campoHacia: h[0], potreroHacia: h[1],
-      lineas: sLineas.slice(), responsable: resp,
-      obs: document.getElementById('sObs').value.trim()
-    });
-  } else {
-    google.script.run.withSuccessHandler(ok).withFailureHandler(mal).guardarExistenciaManual(CODIGO, {
-      fecha: fecha, tipo: sAccion, campo: d[0], potrero: d[1],
-      lineas: sLineas.slice(), responsable: resp,
-      obs: document.getElementById('sObs').value.trim()
-    });
-  }
 }
 
 function sImportarGeo(input){
@@ -4614,7 +4772,6 @@ function sImportarGeo(input){
   lector.readAsText(f);
 }
 
-/** Mismo importador que el servidor, pero guardando en el navegador. */
 function sImportarGeoDemo(texto, campoPorDefecto){
   var gj = JSON.parse(texto);
   var feats = gj.features || (gj.type === 'Feature' ? [gj] : []);
@@ -4656,17 +4813,128 @@ function sImportarGeoDemo(texto, campoPorDefecto){
   return { nuevos: nuevos, actualizados: actualizados };
 }
 
-function sVerTab(t){
-  document.getElementById('sSecMapa').style.display   = (t==='mapa')   ? 'block' : 'none';
-  document.getElementById('sSecMovs').style.display   = (t==='movs')   ? 'block' : 'none';
-  document.getElementById('sSecCargar').style.display = (t==='cargar') ? 'block' : 'none';
-  document.getElementById('sTabMapa').className   = (t==='mapa')   ? 'on' : '';
-  document.getElementById('sTabMovs').className   = (t==='movs')   ? 'on' : '';
-  document.getElementById('sTabCargar').className = (t==='cargar') ? 'on' : '';
-  if (t !== 'cargar') sCargarTodo();
-  window.scrollTo(0,0);
+function sPintarMovs(){
+  var c = document.getElementById('sListaMovs');
+  if (!c) return;
+  if (!sMovs.length){ c.innerHTML = '<div class="vacio">Todavía no hay movimientos.</div>'; return; }
+
+  c.innerHTML = sMovs.map(function(m){
+    var salen = m.lineas.filter(function(l){ return l.cantidad < 0; });
+    var entran = m.lineas.filter(function(l){ return l.cantidad > 0; });
+    var txt;
+    if (m.tipo === 'Movimiento' && salen.length && entran.length){
+      txt = salen.map(function(l){ return Math.abs(l.cantidad) + ' ' + l.categoria; }).join(', ') +
+            '<br><span>' + escapar(salen[0].potrero) + ' → ' + escapar(entran[0].potrero) + '</span>';
+    } else {
+      txt = m.lineas.map(function(l){
+        return (l.cantidad > 0 ? '+' : '') + l.cantidad + ' ' + l.categoria +
+               ' <span>en ' + escapar(l.potrero || l.campo) + '</span>';
+      }).join('<br>');
+    }
+    return '<div class="ev">' +
+      '<div class="top"><span class="fecha">' + fechaLinda(m.fecha) + '</span>' +
+      '<span class="campo">' + escapar(m.tipo) + '</span></div>' +
+      '<div class="lin" style="margin-top:6px">' + txt + '</div>' +
+      (m.responsable ? '<div class="meta">' + escapar(m.responsable) + '</div>' : '') +
+    '</div>';
+  }).join('');
 }
 
+function sElegirDeLista(texto, opciones, alElegir){
+  __sOpciones = opciones;
+  __sAlElegir = alElegir;
+
+  document.getElementById('modalTxt').innerHTML =
+    '<div style="margin-bottom:10px">' + texto + '</div>' +
+    opciones.map(function(o, i){
+      return '<div class="cat" style="min-width:0;margin-bottom:6px;text-align:left;padding:12px" ' +
+             'onclick="sElegido(' + i + ')">' +
+             '<span style="font-size:15px;color:var(--tinta)">' + escapar(o) + '</span></div>';
+    }).join('');
+  document.getElementById('modalInput').style.display = 'none';
+  document.getElementById('modalOk').style.display = 'none';
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function sElegido(i){
+  var op = __sOpciones[i], fn = __sAlElegir;
+  cerrarModal();
+  document.getElementById('modalOk').style.display = '';
+  setTimeout(function(){ if (fn) fn(op, i); }, 80);
+}
+
+function sVerMovs(){
+  var d = document.getElementById('sSecMovs');
+  var abierto = d.style.display !== 'none';
+  d.style.display = abierto ? 'none' : 'block';
+  document.getElementById('sSecAjustes').style.display = 'none';
+  if (!abierto) sPintarMovs();
+}
+
+function sVerAjustes(){
+  var d = document.getElementById('sSecAjustes');
+  d.style.display = (d.style.display === 'none') ? 'block' : 'none';
+  document.getElementById('sSecMovs').style.display = 'none';
+}
+
+function sBuscar(campo, nombre){
+  var r = null;
+  (sStock.campos || []).forEach(function(c){
+    if (c.campo !== campo) return;
+    c.potreros.forEach(function(p){ if (p.nombre === nombre) r = p; });
+  });
+  return r;
+}
+
+function sMandar(tipo, movs){
+  var quien = (USUARIO && USUARIO.nombre) || '';
+  var fecha = hoyISO();
+
+  if (MODO_DEMO){
+    var libro = leerDemo('existencia_demo');
+    var id = 'EX-' + (libro.length + 1);
+    movs.forEach(function(m){
+      libro.push({id:id, fecha:fecha, tipo:tipo, campo:m.campo, potrero:m.potrero,
+                  categoria:m.categoria, cantidad:m.cantidad, responsable:quien, obs:''});
+    });
+    guardarDemo('existencia_demo', libro);
+    sCargarTodo(); aviso('✓ Listo');
+    return;
+  }
+
+  google.script.run
+    .withSuccessHandler(function(){ sCargarTodo(); aviso('✓ Listo'); })
+    .withFailureHandler(function(e){ aviso('No se pudo guardar: ' + e.message, true); })
+    .guardarExistenciaManual(CODIGO, {
+      fecha: fecha, tipo: tipo, responsable: quien, obs: '', movimientos: movs
+    });
+}
+
+function sMandarLote(p){
+  if (MODO_DEMO){
+    var lista = leerDemo('potreros_demo');
+    for (var i = lista.length - 1; i >= 0; i--){
+      if (lista[i].campo !== p.campo || lista[i].nombre !== p.nombre) continue;
+      if (p.borrar) lista.splice(i, 1);
+      else {
+        if (p.nuevoNombre) lista[i].nombre = p.nuevoNombre;
+        if (p.nuevoTipo) lista[i].tipo = p.nuevoTipo;
+      }
+    }
+    guardarDemo('potreros_demo', lista);
+    sSel = p.borrar ? null : (p.nuevoNombre ? {campo:p.campo, nombre:p.nuevoNombre} : sSel);
+    sCargarTodo(); aviso('✓ Listo');
+    return;
+  }
+
+  google.script.run
+    .withSuccessHandler(function(){
+      sSel = p.borrar ? null : (p.nuevoNombre ? {campo:p.campo, nombre:p.nuevoNombre} : sSel);
+      sCargarTodo(); aviso('✓ Listo');
+    })
+    .withFailureHandler(function(e){ aviso('No se pudo: ' + e.message, true); })
+    .editarPotrero(CODIGO, p);
+}
 /* ======================================================================= */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function(){

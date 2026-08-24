@@ -7,7 +7,7 @@
  * app abre pero avisa que no pudo traer nada, que es mejor que mostrar
  * números viejos como si fueran de hoy.
  */
-var CACHE = 'don-antonino-v2';
+var CACHE = 'don-antonino-v4';
 var ARCHIVOS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', function (e) {
