@@ -4195,7 +4195,7 @@ function sVistas(){
     });
     if (tienePotrero && campos.indexOf(c.campo) < 0) campos.push(c.campo);
   });
-  if (hayCorral) campos.unshift('Feedlot');
+  if (hayCorral && campos.indexOf('Feedlot') < 0) campos.unshift('Feedlot');
   return campos;
 }
 
