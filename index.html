@@ -1323,6 +1323,7 @@ var FUNCIONES_SERVIDOR = [
   'guardarCampo','getCampo','borrarCampo',
   'guardarReparacion','getReparaciones','resolverReparacion','reabrirReparacion','borrarReparacion',
   'getPotreros','getStock','getMovimientosStock','guardarExistenciaManual','moverHacienda','importarGeojson',
+  'editarPotrero','juntarPotreros',
   'guardarVenta','getVentas','borrarVenta','getJaulasSinLiquidar','leerLiquidacion',
   'guardarPagoAdicional','borrarPagoAdicional','getAdicionales','getCuenta'
 ];
@@ -4928,7 +4929,8 @@ function sMandarLote(p){
   }
 
   google.script.run
-    .withSuccessHandler(function(){
+    .withSuccessHandler(function(r){
+      if (!r || !r.ok) { aviso('No se pudo: ' + ((r && r.error) || 'el servidor no encontró ese lote'), true); return; }
       sSel = p.borrar ? null : (p.nuevoNombre ? {campo:p.campo, nombre:p.nuevoNombre} : sSel);
       sCargarTodo(); aviso('✓ Listo');
     })
