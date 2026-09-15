@@ -1054,11 +1054,21 @@
 
     <div class="card">
       <label>Fotos <span class="opt">— opcional, hasta 4</span></label>
-      <input type="file" id="rInputFoto" accept="image/*" style="display:none"
+      <!-- Dos inputs separados: con capture el celular abre la camara directo,
+           sin capture abre la galeria/archivos. Con uno solo, Android e iOS
+           saltan la camara y van derecho a las fotos. -->
+      <input type="file" id="rInputCamara" accept="image/*" capture="environment" style="display:none"
              onchange="rElegirFotos(this)">
-      <button class="btn sec" onclick="document.getElementById('rInputFoto').click()">
-        📷 Sacar foto o elegir
-      </button>
+      <input type="file" id="rInputGaleria" accept="image/*" multiple style="display:none"
+             onchange="rElegirFotos(this)">
+      <div class="row">
+        <button class="btn sec" onclick="document.getElementById('rInputCamara').click()">
+          📷 Sacar foto
+        </button>
+        <button class="btn sec" onclick="document.getElementById('rInputGaleria').click()">
+          🖼️ Subir foto
+        </button>
+      </div>
       <div class="fotos" id="rPreviewFotos"></div>
       <div class="hint" id="rHintFotos">Se achican en el celular antes de subirse, así van rápido aunque haya poca señal.</div>
     </div>
