@@ -1144,8 +1144,8 @@
 
     <div class="card" id="vCardJaula">
       <label>¿A qué carga corresponde? <span class="opt">— opcional</span></label>
-      <select id="vJaula"></select>
-      <div class="hint">Al vincularla, esa jaula sale de la lista de pendientes.</div>
+      <select id="vJaula" onchange="vJaulaElegida()"></select>
+      <div class="hint" id="vHintJaula">Al vincularla, esa jaula sale de la lista de pendientes.</div>
     </div>
 
     <div class="card">
@@ -1395,6 +1395,18 @@ var VACUNAS = ['Aftosa','Brucelosis','Clostridial','Respiratoria','Reproductiva'
                'Desparasitación','Vitamínico','Otra'];
 
 var CATEGORIAS = ['Vacas','Vaquillonas','Novillos','Novillitos','Terneros','Terneras','Toros'];
+
+/* Cada frigorifico factura con el nombre que se le canta: el Swift liquida los
+   novillos como "novillitos" y las vacas como "vaquillonas". Por eso, para
+   saber a que jaula corresponde una factura, no se compara la categoria tal
+   cual sino la familia, mas la cantidad de cabezas y la fecha. La categoria
+   que queda guardada es siempre la de la carga: es la que anotaron los
+   muchachos y la que descento del stock. */
+var FAMILIA_CAT = {
+  'novillos':'machos', 'novillitos':'machos', 'terneros':'machos',
+  'vacas':'hembras', 'vaquillonas':'hembras', 'terneras':'hembras',
+  'toros':'toros'
+};
 
 // De qué etapa sale la hacienda de cada campo. Es solo un valor por defecto:
 // hoy no hay datos como para separar cría de recría con rigor.
@@ -3556,6 +3568,7 @@ function vVolcarLectura(L){
   vPintarLineas();
   vHintNeto();
   aviso('✓ Liquidación leída. Revisala.');
+  vVincularConJaula_();
 }
 
 function vAgregarLinea(){
@@ -3667,6 +3680,19 @@ function vGuardar(){
     idExistente: vEditandoId || ''
   };
 
+  if (vTipo === 'Venta' && !payload.jaula && !vEditandoId && vPendientes.length){
+    pedirConfirmacion(
+      'Esta venta no queda vinculada a ninguna carga, así que esas jaulas van a ' +
+      'seguir apareciendo en <b>Jaulas sin liquidación</b>.<br><br>' +
+      '¿La guardo igual?',
+      function(){ vGuardarAhora(payload); },
+      { boton: 'Guardar igual' });
+    return;
+  }
+  vGuardarAhora(payload);
+}
+
+function vGuardarAhora(payload){
   var btn = document.getElementById('vBtnGuardar');
   btn.disabled = true; btn.textContent = 'Guardando...';
 
@@ -3715,6 +3741,7 @@ function vLimpiarForm(){
   document.getElementById('vHintPdf').textContent =
     'Completa el formulario con lo que diga el papel. Revisalo antes de guardar.';
   document.getElementById('vJaula').value = '';
+  vHintJaula('');
   document.getElementById('vFecha').value = hoyISO();
   vElegirTipo('Venta');
   vPintarLineas();
@@ -3771,6 +3798,179 @@ function vBorrar(id){
         .withFailureHandler(function(e){ aviso('No se pudo: ' + e.message, true); })
         .borrarVenta(CODIGO, id);
     });
+}
+
+/* ---------- vincular la factura con la jaula ---------- */
+
+function vFamilia_(cat){
+  var t = String(cat || '').toLowerCase().trim();
+  try { t = t.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); } catch(e){}
+  if (!t) return '';
+  if (t.charAt(t.length - 1) !== 's') t += 's';   // "novillito" -> "novillitos"
+  return FAMILIA_CAT[t] || t;
+}
+
+/** { familia: cabezas }. Sirve igual para las tandas de una carga (cantidad)
+ *  que para los renglones de una factura (cabezas). */
+function vPorFamilia_(items){
+  var m = {};
+  (items || []).forEach(function(x){
+    var f = vFamilia_(x.categoria);
+    var n = Number(x.cantidad !== undefined ? x.cantidad : x.cabezas) || 0;
+    if (f && n) m[f] = (m[f] || 0) + n;
+  });
+  return m;
+}
+
+function vMismasFamilias_(a, b){
+  var claves = {}, iguales = true;
+  Object.keys(a).forEach(function(k){ claves[k] = true; });
+  Object.keys(b).forEach(function(k){ claves[k] = true; });
+  Object.keys(claves).forEach(function(k){
+    if ((a[k] || 0) !== (b[k] || 0)) iguales = false;
+  });
+  return iguales;
+}
+
+function vDiasEntre_(isoA, isoB){
+  var a = Date.parse(String(isoA || '').substring(0,10) + 'T00:00:00');
+  var b = Date.parse(String(isoB || '').substring(0,10) + 'T00:00:00');
+  if (isNaN(a) || isNaN(b)) return 9999;
+  return Math.abs(a - b) / 86400000;
+}
+
+/**
+ * Busca entre las jaulas pendientes la que corresponde a lo que dice la
+ * factura. Pide que coincida el total de cabezas y que la fecha este cerca;
+ * las familias iguales desempatan. Si dos quedan igual de parecidas no elige:
+ * mejor que lo mire el.
+ */
+function vBuscarJaula_(fechaFactura, lineas){
+  var cab = 0;
+  lineas.forEach(function(l){ cab += Number(l.cabezas) || 0; });
+  if (!cab) return null;
+
+  var fam = vPorFamilia_(lineas);
+  var cands = [];
+
+  vPendientes.forEach(function(j){
+    var cabJ = 0;
+    (j.tandas || []).forEach(function(t){ cabJ += Number(t.cantidad) || 0; });
+    if (cabJ !== cab) return;
+    var dias = vDiasEntre_(j.fecha, fechaFactura);
+    if (dias > 60) return;
+    cands.push({ j: j, dias: dias, exacta: vMismasFamilias_(fam, vPorFamilia_(j.tandas)) });
+  });
+
+  if (!cands.length) return null;
+  cands.sort(function(a, b){
+    if (a.exacta !== b.exacta) return a.exacta ? -1 : 1;
+    return a.dias - b.dias;
+  });
+  if (cands.length > 1 && cands[0].exacta === cands[1].exacta && cands[0].dias === cands[1].dias){
+    return { ambiguo: true };
+  }
+  return cands[0];
+}
+
+/**
+ * Deja los renglones con la categoria de la carga. Los kilos, el precio y el
+ * importe son los del papel y no se tocan nunca: lo unico que se corrige es
+ * como le dice el frigorifico al animal.
+ */
+function vCategoriasDeLaJaula_(jaula){
+  var porFam = {};
+  (jaula.tandas || []).forEach(function(t){
+    var f = vFamilia_(t.categoria);
+    if (!f) return;
+    if (!porFam[f]) porFam[f] = {};
+    porFam[f][t.categoria] = true;
+  });
+
+  var cambios = [];
+  vLineas.forEach(function(l){
+    var op = porFam[vFamilia_(l.categoria)];
+    var nombres = op ? Object.keys(op) : [];
+    // si la carga tiene dos categorias de la misma familia no hay como saber
+    // cual es cual: se deja lo que dice la factura
+    if (nombres.length !== 1 || nombres[0] === l.categoria) return;
+    cambios.push({ de: l.categoria, a: nombres[0], cabezas: l.cabezas });
+    l.categoria = nombres[0];
+  });
+  return cambios;
+}
+
+function vHintJaula(txt, alerta){
+  var h = document.getElementById('vHintJaula');
+  h.textContent = txt || 'Al vincularla, esa jaula sale de la lista de pendientes.';
+  h.className = 'hint' + (alerta ? ' alerta' : '');
+}
+
+/** Alinea los renglones con la carga y deja anotado en observaciones con que
+ *  nombre lo facturaron, para poder rastrearlo despues contra el papel. */
+function vAlinearConJaula_(jaula, auto){
+  var cambios = vCategoriasDeLaJaula_(jaula);
+  var detalle = cambios.map(function(c){
+    return c.cabezas + ' ' + c.de + ' \u2192 ' + c.a;
+  }).join('; ');
+
+  if (cambios.length){
+    var nota = 'Facturado como: ' + detalle + '.';
+    var obs = document.getElementById('vObs');
+    if (obs.value.indexOf(nota) < 0) obs.value = (obs.value ? obs.value + ' ' : '') + nota;
+    vPintarLineas();
+  }
+
+  vHintJaula('Vinculada a la carga del ' + fechaLinda(jaula.fecha) +
+    (jaula.desde ? ' desde ' + jaula.desde : '') + '.' +
+    (cambios.length ? ' La factura dec\u00eda ' + detalle + '; queda con la categor\u00eda de la carga.' : ''));
+
+  if (auto){
+    aviso('\u2713 Vinculada sola con la jaula del ' + fechaLinda(jaula.fecha) +
+          (cambios.length ? '. Le corregí la categor\u00eda.' : '.'));
+  }
+}
+
+/** Al leer el PDF: si no hay jaula elegida, la busca; si hay, alinea nomas. */
+function vVincularConJaula_(){
+  if (vTipo !== 'Venta') return;
+
+  var id = document.getElementById('vJaula').value;
+  var jaula = null;
+  if (id){
+    vPendientes.forEach(function(j){ if (j.id === id) jaula = j; });
+    if (!jaula) return;            // una venta vieja que se esta corrigiendo
+    vAlinearConJaula_(jaula, false);
+    return;
+  }
+
+  var r = vBuscarJaula_(document.getElementById('vFecha').value, vLineas);
+  if (r && r.ambiguo){
+    vHintJaula('Hay más de una jaula pendiente que le puede corresponder. Elegila vos.', true);
+    return;
+  }
+  if (!r){
+    vHintJaula(vPendientes.length
+      ? 'No le encontré jaula. Si corresponde a una, elegila acá; si no, va a seguir figurando como pendiente.'
+      : '', vPendientes.length > 0);
+    return;
+  }
+
+  vLlenarJaulas(r.j.id);
+  vAlinearConJaula_(r.j, true);
+}
+
+/** Cuando la elige a mano. */
+function vJaulaElegida(){
+  var id = document.getElementById('vJaula').value;
+  if (!id){
+    vHintJaula('Sin vincular: la jaula va a seguir figurando como pendiente.', true);
+    return;
+  }
+  var jaula = null;
+  vPendientes.forEach(function(j){ if (j.id === id) jaula = j; });
+  if (!jaula){ vHintJaula(''); return; }
+  vAlinearConJaula_(jaula, false);
 }
 
 function vLlenarJaulas(seleccionada){
