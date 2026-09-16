@@ -3839,11 +3839,21 @@ function vDiasEntre_(isoA, isoB){
   return Math.abs(a - b) / 86400000;
 }
 
+/** Cabezas de la carga menos cabezas de la factura. Positivo = la factura
+ *  trae de menos, que es lo que pasa cuando decomisan un animal enfermo. */
+function vFaltantes_(jaula){
+  var cabJ = 0, cabF = 0;
+  (jaula.tandas || []).forEach(function(t){ cabJ += Number(t.cantidad) || 0; });
+  vLineas.forEach(function(l){ cabF += Number(l.cabezas) || 0; });
+  return cabJ - cabF;
+}
+
 /**
  * Busca entre las jaulas pendientes la que corresponde a lo que dice la
- * factura. Pide que coincida el total de cabezas y que la fecha este cerca;
- * las familias iguales desempatan. Si dos quedan igual de parecidas no elige:
- * mejor que lo mire el.
+ * factura: total de cabezas y fecha cerca; las familias iguales desempatan.
+ * Cada tanto decomisan un animal que salio enfermo, asi que se aceptan hasta
+ * dos cabezas de menos (nunca de mas), pero eso siempre se avisa. Si dos
+ * jaulas quedan igual de parecidas no elige: mejor que lo mire el.
  */
 function vBuscarJaula_(fechaFactura, lineas){
   var cab = 0;
@@ -3856,18 +3866,22 @@ function vBuscarJaula_(fechaFactura, lineas){
   vPendientes.forEach(function(j){
     var cabJ = 0;
     (j.tandas || []).forEach(function(t){ cabJ += Number(t.cantidad) || 0; });
-    if (cabJ !== cab) return;
+    var falta = cabJ - cab;
+    if (falta < 0 || falta > 2) return;
     var dias = vDiasEntre_(j.fecha, fechaFactura);
     if (dias > 60) return;
-    cands.push({ j: j, dias: dias, exacta: vMismasFamilias_(fam, vPorFamilia_(j.tandas)) });
+    cands.push({ j: j, dias: dias, falta: falta,
+                 exacta: vMismasFamilias_(fam, vPorFamilia_(j.tandas)) });
   });
 
   if (!cands.length) return null;
   cands.sort(function(a, b){
+    if (a.falta !== b.falta) return a.falta - b.falta;      // la que cuadra justo, primero
     if (a.exacta !== b.exacta) return a.exacta ? -1 : 1;
     return a.dias - b.dias;
   });
-  if (cands.length > 1 && cands[0].exacta === cands[1].exacta && cands[0].dias === cands[1].dias){
+  if (cands.length > 1 && cands[0].falta === cands[1].falta &&
+      cands[0].exacta === cands[1].exacta && cands[0].dias === cands[1].dias){
     return { ambiguo: true };
   }
   return cands[0];
@@ -3914,20 +3928,41 @@ function vAlinearConJaula_(jaula, auto){
     return c.cabezas + ' ' + c.de + ' \u2192 ' + c.a;
   }).join('; ');
 
-  if (cambios.length){
-    var nota = 'Facturado como: ' + detalle + '.';
-    var obs = document.getElementById('vObs');
+  var obs = document.getElementById('vObs');
+  function anotar(nota){
     if (obs.value.indexOf(nota) < 0) obs.value = (obs.value ? obs.value + ' ' : '') + nota;
+  }
+
+  if (cambios.length){
+    anotar('Facturado como: ' + detalle + '.');
     vPintarLineas();
+  }
+
+  // Un animal de menos suele ser un decomiso; uno de mas, que no es esta jaula.
+  var falta = vFaltantes_(jaula);
+  var cabJaula = 0;
+  (jaula.tandas || []).forEach(function(t){ cabJaula += Number(t.cantidad) || 0; });
+  var aviso_cab = '';
+  if (falta > 0){
+    aviso_cab = 'La carga eran ' + cabJaula + ' cab. y la factura trae ' +
+                (cabJaula - falta) + (falta === 1 ? ': falta 1.' : ': faltan ' + falta + '.');
+    anotar(aviso_cab);
+  } else if (falta < 0){
+    aviso_cab = 'La carga eran ' + cabJaula + ' cab. y la factura trae ' +
+                (cabJaula - falta) + ': ' + (-falta) + ' de m\u00e1s. Fijate si es la jaula correcta.';
   }
 
   vHintJaula('Vinculada a la carga del ' + fechaLinda(jaula.fecha) +
     (jaula.desde ? ' desde ' + jaula.desde : '') + '.' +
-    (cambios.length ? ' La factura dec\u00eda ' + detalle + '; queda con la categor\u00eda de la carga.' : ''));
+    (cambios.length ? ' La factura dec\u00eda ' + detalle + '; queda con la categor\u00eda de la carga.' : '') +
+    (aviso_cab ? ' ' + aviso_cab : ''), !!aviso_cab);
 
   if (auto){
-    aviso('\u2713 Vinculada sola con la jaula del ' + fechaLinda(jaula.fecha) +
-          (cambios.length ? '. Le corregí la categor\u00eda.' : '.'));
+    aviso(aviso_cab
+      ? '\u26a0 Vinculada con la jaula del ' + fechaLinda(jaula.fecha) + '. ' + aviso_cab
+      : '\u2713 Vinculada sola con la jaula del ' + fechaLinda(jaula.fecha) +
+        (cambios.length ? '. Le corregí la categor\u00eda.' : '.'),
+      !!aviso_cab);
   }
 }
 
