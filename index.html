@@ -618,7 +618,7 @@
         <path d="M24 12v24M12 24h24" stroke="#7a2a12" stroke-width="5" stroke-linecap="square"/>
       </svg>
       <div class="nom">SANIDAD</div>
-      <div class="desc">Vacunaciones, tactos y visitas del veterinario</div>
+      <div class="desc">Vacunaciones, tactos, visitas del veterinario y muertes</div>
     </div>
 
     <div class="cuadro" data-mod="campo" onclick="abrirModulo('campo')">
@@ -630,7 +630,7 @@
         <path d="M12 23h13M12 18h13" stroke="#a87a2c" stroke-width="2" stroke-linecap="round"/>
       </svg>
       <div class="nom">NOVEDADES</div>
-      <div class="desc">Cargas, ingresos, muertes, suplementos y gasoil</div>
+      <div class="desc">Cargas, ingresos, suplementos, gasoil y otras actividades</div>
     </div>
 
     <div class="cuadro" data-mod="rep" onclick="abrirModulo('rep')">
@@ -769,6 +769,19 @@
 
       <div id="listaTandas" style="margin-top:12px"></div>
       <div class="total" id="totalTandas"></div>
+    </div>
+
+    <!-- muerte: se guarda en la hoja Hacienda y descuenta del stock -->
+    <div class="card" id="cardMuerte" style="display:none">
+      <label>¿Qué se murió?</label>
+      <div class="row" style="margin-bottom:9px">
+        <select id="muerteCat"></select>
+        <input type="number" id="muerteCant" class="chico" placeholder="Cant." inputmode="numeric" min="1" value="1">
+      </div>
+      <input type="text" id="muertePotrero" list="listaOrigenes"
+             placeholder="¿Dónde estaba? (potrero, corral)" autocomplete="off">
+      <input type="text" id="muerteCaravana" style="margin-top:9px"
+             placeholder="N° de caravana (opcional)" autocomplete="off">
     </div>
 
     <!-- un renglón por vacuna usada en toda la carga -->
@@ -946,6 +959,33 @@
                placeholder="¿Dónde estaba? (potrero, corral)" autocomplete="off">
         <input type="text" id="cMuerteCaravana" style="margin-top:9px"
                placeholder="N° de caravana (opcional)" autocomplete="off">
+      </div>
+
+    </div>
+
+    <!-- ===== forma OTRA ACTIVIDAD (pesadas, preparar jaula, etc.) ===== -->
+    <div id="cFormaOtra" style="display:none">
+
+      <div class="card">
+        <label>¿Qué se hizo?</label>
+        <div class="chips" id="cChipsOtra"></div>
+        <input type="text" id="cOtraQue" list="listaOtras" style="margin-top:9px"
+               placeholder="O escribí otra cosa" autocomplete="off">
+      </div>
+
+      <div class="card">
+        <label>¿En qué campo?</label>
+        <div class="chips" id="cChipsCampoOtra"></div>
+        <input type="text" id="cOtraLugar" list="listaOrigenes" style="margin-top:9px"
+               placeholder="¿Dónde? Potrero, corral (opcional)" autocomplete="off">
+      </div>
+
+      <div class="card">
+        <label>Animales <span class="opt">— opcional</span></label>
+        <div class="row">
+          <select id="cOtraCat"></select>
+          <input type="number" id="cOtraCant" class="chico" placeholder="Cant." inputmode="numeric" min="1">
+        </div>
       </div>
 
     </div>
@@ -1280,6 +1320,7 @@
 <datalist id="listaInsumos"></datalist>
 <datalist id="listaProveedores"></datalist>
 <datalist id="listaLugares"></datalist>
+<datalist id="listaOtras"></datalist>
 
 <div class="modal" id="modal" style="display:none">
   <div class="modalCaja">
@@ -1386,7 +1427,12 @@ var ACTIVIDADES = [
 
   { nombre:'Visita veterinaria', animales:'opcional', libre:'¿Qué se hizo en la visita?' },
 
-  { nombre:'Otra', animales:'opcional', libre:'¿Qué actividad fue?' }
+  { nombre:'Otra', animales:'opcional', libre:'¿Qué actividad fue?' },
+
+  /* Las muertes se cargan acá pero se guardan con Novedades (hoja Hacienda),
+     porque descuentan del stock. Solo la ve quien tiene acceso a Novedades. */
+  { nombre:'Muerte', muerte:true, animales:'no', libre:null, sinProgramar:true,
+    ayuda:'Qué se murió y dónde estaba. La caravana es opcional.' }
 ];
 
 // "Otra" abre un campo de texto. Si ponen varias separadas por coma, se guardan
@@ -1436,8 +1482,10 @@ var TIPOS_CAMPO = [
     phDestino:'Ej: La Ilusión, potrero del fondo',
     ayuda:'Traslados entre campos o entre potreros.' },
 
-  { nombre:'Muerte', forma:'muerte',
+  // Se carga desde Sanidad; queda acá (oculta) porque se guarda con guardarCampo.
+  { nombre:'Muerte', forma:'muerte', oculto:true,
     ayuda:'Qué se murió y dónde estaba. La caravana es opcional.' },
+
 
   { nombre:'Ingreso de suplementos', forma:'insumo',
     lblCantidad:'¿Cuánto entró?',
@@ -1447,10 +1495,16 @@ var TIPOS_CAMPO = [
   { nombre:'Ingreso de gasoil', forma:'insumo', insumoFijo:'Gasoil', unidadFija:'Litros',
     lblCantidad:'¿Cuántos litros?',
     lblProveedor:'¿Quién lo trajo?', lblCampo:'¿A qué campo entró?',
-    ayuda:'Litros que entraron y en qué tanque se descargaron.' }
+    ayuda:'Litros que entraron y en qué tanque se descargaron.' },
+
+  { nombre:'Otra actividad', forma:'otra',
+    ayuda:'Lo que se hizo y no entra en lo demás: preparar una jaula, pesar, arreglar la manga.' }
 ];
 
 var UNIDADES = ['Kilos','Toneladas','Rollos','Fardos','Bolsas','Camionadas','Litros'];
+
+// Atajos para "Otra actividad". Se puede escribir cualquier otra cosa.
+var OTRAS_ACTIVIDADES = ['Pesada', 'Preparación de jaula'];
 
 var INSUMOS = ['Maíz','Silo de maíz','Expeller de soja','Gluten feed','Balanceado','Premix',
                'Rollos de alfalfa','Rollos de moha','Fardos','Sal mineral','Núcleo'];
@@ -1465,7 +1519,8 @@ var pCampoSel = '', pActSel = '';
 var eventos = [], pendientes = [];
 
 var cTandas = [], cTipo = null, cCampoSel = '', cCampoComidaSel = '';
-var cHaciaSel = '', cCampoMuerteSel = '';
+var cHaciaSel = '', cCampoMuerteSel = '', cCampoOtraSel = '';
+var muertesSan = [];        // muertes de la hoja Hacienda, para el historial de Sanidad
 var cRegistros = [], cEditandoId = null;
 
 var OTROS = 'Otros';
@@ -1630,6 +1685,15 @@ function entrarComo(res){
     : 'Lo que se te debe y lo que ya cobraste';
   TITULOS.cuenta = esJefe ? 'Deudas' : 'Mi cuenta';
 
+  // la muerte se guarda con Novedades: quien no tiene Novedades no la ve
+  ACTIVIDADES.forEach(function(a){
+    if (!a.muerte) return;
+    var ch = document.querySelector('#chipsActividad .chip[data-v="' + a.nombre + '"]');
+    if (ch) ch.style.display = puede('campo') ? '' : 'none';
+    var op = document.querySelector('#filtroActividad option[value="' + a.nombre + '"]');
+    if (op) op.style.display = puede('campo') ? '' : 'none';
+  });
+
   // el nombre queda elegido solo en los "quién lo carga"
   ['responsable','cResponsable','rResponsable'].forEach(function(id){
     var s = document.getElementById(id);
@@ -1740,7 +1804,9 @@ function init(){
   llenarSelect('cUnidad', UNIDADES);
   llenarSelect('filtroCampo', CAMPOS, 'Todos los campos');
   llenarSelect('filtroActividad', ACTIVIDADES.map(function(a){return a.nombre;}), 'Todas las actividades');
-  llenarSelect('cFiltroTipo', TIPOS_CAMPO.map(function(t){return t.nombre;}), 'Todo');
+  var tiposVisibles = TIPOS_CAMPO.filter(function(t){ return !t.oculto; })
+                                 .map(function(t){ return t.nombre; });
+  llenarSelect('cFiltroTipo', tiposVisibles, 'Todo');
 
   var nombresAct = ACTIVIDADES.map(function(a){return a.nombre;});
   pintarChipsSimple('chipsCampo', CAMPOS, elegirCampo);
@@ -1748,12 +1814,25 @@ function init(){
   pintarChipsSimple('pChipsCampo', CAMPOS, function(v){
     pCampoSel = (pCampoSel === v) ? '' : v; marcarChip('pChipsCampo', pCampoSel);
   });
-  pintarChipsSimple('pChipsActividad', nombresAct, function(v){
-    pActSel = (pActSel === v) ? '' : v; marcarChip('pChipsActividad', pActSel);
-  });
+  pintarChipsSimple('pChipsActividad',
+    ACTIVIDADES.filter(function(a){ return !a.sinProgramar; }).map(function(a){ return a.nombre; }),
+    function(v){
+      pActSel = (pActSel === v) ? '' : v; marcarChip('pChipsActividad', pActSel);
+    });
   pintarChipsVacunas();
+  llenarSelect('muerteCat', CATEGORIAS, 'Categoría');
 
-  pintarChipsSimple('cChipsTipo', TIPOS_CAMPO.map(function(t){return t.nombre;}), cElegirTipo);
+  pintarChipsSimple('cChipsTipo', tiposVisibles, cElegirTipo);
+  pintarChipsSimple('cChipsOtra', OTRAS_ACTIVIDADES, function(v){
+    var inp = document.getElementById('cOtraQue');
+    inp.value = (inp.value === v) ? '' : v;
+    marcarChip('cChipsOtra', inp.value);
+  });
+  document.getElementById('cOtraQue').oninput = function(){ marcarChip('cChipsOtra', this.value.trim()); };
+  pintarChipsSimple('cChipsCampoOtra', CAMPOS, function(v){
+    cCampoOtraSel = (cCampoOtraSel === v) ? '' : v; marcarChip('cChipsCampoOtra', cCampoOtraSel);
+  });
+  llenarSelect('cOtraCat', CATEGORIAS, 'Categoría');
   pintarChipsSimple('cChipsCampo', CAMPOS.concat([OTROS]), function(v){
     cCampoSel = (cCampoSel === v) ? '' : v;
     marcarChip('cChipsCampo', cCampoSel);
@@ -1930,7 +2009,8 @@ function aplicarActividad(){
   document.getElementById('bloqueVacunas').style.display = (a && a.vacunas) ? 'block' : 'none';
   document.getElementById('bloqueTacto').style.display   = (a && a.tacto) ? 'block' : 'none';
   document.getElementById('cardProductosVac').style.display = (a && a.vacunas) ? 'block' : 'none';
-  document.getElementById('cardProducto').style.display      = (a && !a.vacunas) ? 'block' : 'none';
+  document.getElementById('cardProducto').style.display      = (a && !a.vacunas && !a.muerte) ? 'block' : 'none';
+  document.getElementById('cardMuerte').style.display        = (a && a.muerte) ? 'block' : 'none';
 
   if (a && a.libre) document.getElementById('lblLibre').textContent = a.libre;
 
@@ -2182,6 +2262,8 @@ function guardar(){
   if (!actSel){ aviso('Elegí la actividad', true); return; }
   if (!resp){ aviso('Indicá quién lo carga', true); return; }
 
+  if (actSel.muerte){ guardarMuerte(fecha, resp); return; }
+
   if (actSel.animales === 'obligatorio' && !tandas.length){
     aviso('Agregá al menos una tanda de animales', true); return;
   }
@@ -2236,6 +2318,65 @@ function guardar(){
     .guardarEvento(CODIGO, payload);
 }
 
+/**
+ * La muerte se carga en Sanidad pero se guarda igual que antes en Novedades
+ * (hoja Hacienda, Tipo='Muerte'): así sigue descontando del stock y las
+ * cargas viejas no cambian de lugar.
+ */
+function guardarMuerte(fecha, resp){
+  var mcat  = document.getElementById('muerteCat').value;
+  var mcant = parseInt(document.getElementById('muerteCant').value, 10) || 0;
+  if (!mcat){ aviso('Elegí qué categoría', true); return; }
+  if (mcant <= 0){ aviso('Poné cuántos', true); return; }
+
+  var payload = {
+    fecha: fecha, tipo: 'Muerte', forma: 'muerte',
+    responsable: resp,
+    obs: document.getElementById('obs').value.trim(),
+    idExistente: editandoId || '',
+    desde: campoSel, hacia: '',
+    caravana: document.getElementById('muerteCaravana').value.trim(),
+    tandas: [{ categoria: mcat, cantidad: mcant,
+               potrero: document.getElementById('muertePotrero').value.trim() }]
+  };
+
+  var btn = document.getElementById('btnGuardar');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+
+  if (MODO_DEMO){
+    var demo = leerDemo('campo_demo');
+    if (editandoId){
+      payload.id = editandoId;
+      demo = demo.map(function(x){ return x.id === editandoId ? payload : x; });
+    } else {
+      payload.id = 'HA-' + (demo.length + 1);
+      demo.unshift(payload);
+    }
+    guardarDemo('campo_demo', demo);
+    exitoGuardado();
+    return;
+  }
+
+  google.script.run
+    .withSuccessHandler(function(){ exitoGuardado(); })
+    .withFailureHandler(function(e){
+      btn.disabled = false; btn.textContent = 'Guardar';
+      aviso('No se pudo guardar: ' + e.message, true);
+    })
+    .guardarCampo(CODIGO, payload);
+}
+
+/** Pasa una muerte de la hoja Hacienda a la forma de un evento de Sanidad. */
+function muerteComoEvento(r){
+  return {
+    id: r.id, fecha: r.fecha, campo: r.desde || '', actividad: 'Muerte', esMuerte: true,
+    tandas: (r.tandas || []).map(function(t){
+      return { categoria: t.categoria, cantidad: t.cantidad, origen: t.potrero || '' };
+    }),
+    caravana: r.caravana || '', responsable: r.responsable || '', obs: r.obs || ''
+  };
+}
+
 function exitoGuardado(){
   var btn = document.getElementById('btnGuardar');
   btn.disabled = false;
@@ -2253,9 +2394,10 @@ function limpiarForm(){
   marcarChip('chipsActividad', '');
   marcarChip('chipsCampo', '');
   document.getElementById('fecha').value = hoyISO();
-  ['producto','marca','obs','detalleLibre'].forEach(function(id){
+  ['producto','marca','obs','detalleLibre','muertePotrero','muerteCaravana','muerteCat'].forEach(function(id){
     document.getElementById(id).value = '';
   });
+  document.getElementById('muerteCant').value = '1';
   aplicarActividad();
   window.scrollTo({top:0, behavior:'smooth'});
 }
@@ -2264,7 +2406,7 @@ function limpiarForm(){
 
 function editarEvento(id){
   var ev = null;
-  eventos.forEach(function(e){ if (e.id === id) ev = e; });
+  eventos.concat(muertesSan).forEach(function(e){ if (e.id === id) ev = e; });
   if (!ev){ aviso('No encontré esa carga', true); return; }
 
   editandoId = id;
@@ -2300,6 +2442,16 @@ function editarEvento(id){
   document.getElementById('producto').value = (actSel && actSel.vacunas) ? '' : (ev.producto || '');
   document.getElementById('marca').value    = (actSel && actSel.vacunas) ? '' : (ev.marca || '');
 
+  if (ev.esMuerte){
+    tandas = [];
+    pintarTandas();
+    var t0 = (ev.tandas || [])[0] || {};
+    document.getElementById('muerteCat').value      = t0.categoria || '';
+    document.getElementById('muerteCant').value     = t0.cantidad || 1;
+    document.getElementById('muertePotrero').value  = t0.origen || '';
+    document.getElementById('muerteCaravana').value = ev.caravana || '';
+  }
+
   document.getElementById('bannerEditTxt').textContent =
     (ev.actividad || 'la carga') + ' del ' + fechaLinda(ev.fecha);
   document.getElementById('bannerEdit').style.display = 'block';
@@ -2316,28 +2468,31 @@ function cancelarEdicion(){
 
 function borrarEventoUI(id){
   var ev = null;
-  eventos.forEach(function(e){ if (e.id === id) ev = e; });
+  eventos.concat(muertesSan).forEach(function(e){ if (e.id === id) ev = e; });
+  var esMuerte = !!(ev && ev.esMuerte);
   var desc = ev ? ('<b>' + escapar(ev.actividad || 'la carga') + '</b> del ' + fechaLinda(ev.fecha) +
                    ' en ' + escapar(ev.campo || '')) : 'esta carga';
 
   pedirConfirmacion('¿Borrar ' + desc + '?<br><br>No se puede deshacer.', function(){
     if (MODO_DEMO){
-      guardarDemo('sanidad_demo', leerDemo('sanidad_demo').filter(function(x){ return x.id !== id; }));
+      var clave = esMuerte ? 'campo_demo' : 'sanidad_demo';
+      guardarDemo(clave, leerDemo(clave).filter(function(x){ return x.id !== id; }));
       if (editandoId === id) limpiarForm();
       cargarTodo();
       aviso('Carga borrada');
       return;
     }
 
-    google.script.run
+    var run = google.script.run
       .withSuccessHandler(function(res){
         if (res && res.ok === false){ aviso('No encontré esa carga en la planilla', true); return; }
         if (editandoId === id) limpiarForm();
         cargarTodo();
         aviso('Carga borrada');
       })
-      .withFailureHandler(function(e){ aviso('No se pudo borrar: ' + e.message, true); })
-      .borrarEvento(CODIGO, id);
+      .withFailureHandler(function(e){ aviso('No se pudo borrar: ' + e.message, true); });
+    // la muerte vive en la hoja Hacienda: se borra por Novedades (y sale del stock)
+    if (esMuerte) run.borrarCampo(CODIGO, id); else run.borrarEvento(CODIGO, id);
   });
 }
 
@@ -2436,6 +2591,8 @@ function trasMarcarHecha(pend){
 function cargarTodo(){
   if (MODO_DEMO){
     eventos = leerDemo('sanidad_demo');
+    muertesSan = puede('campo') ? leerDemo('campo_demo')
+      .filter(function(r){ return r.forma === 'muerte'; }).map(muerteComoEvento) : [];
     pendientes = leerDemo('sanidad_prog').filter(function(x){ return x.estado !== 'Hecha'; });
     pintarPendientes();
     pintarHistorial();
@@ -2445,6 +2602,16 @@ function cargarTodo(){
     .withSuccessHandler(function(data){ eventos = data || []; pintarHistorial(); })
     .withFailureHandler(function(){ eventos = []; pintarHistorial(); })
     .getEventos(CODIGO);
+  if (puede('campo')){
+    google.script.run
+      .withSuccessHandler(function(data){
+        muertesSan = (data || []).filter(function(r){ return r.forma === 'muerte'; })
+                                 .map(muerteComoEvento);
+        pintarHistorial();
+      })
+      .withFailureHandler(function(){ muertesSan = []; pintarHistorial(); })
+      .getCampo(CODIGO);
+  }
   google.script.run
     .withSuccessHandler(function(data){ pendientes = data || []; pintarPendientes(); })
     .withFailureHandler(function(){ pendientes = []; pintarPendientes(); })
@@ -2495,10 +2662,15 @@ function pintarHistorial(){
   var fa = document.getElementById('filtroActividad').value;
   var cont = document.getElementById('listaHist');
 
-  var lista = eventos.filter(function(e){
+  var lista = eventos.concat(muertesSan).filter(function(e){
     if (fc && e.campo !== fc) return false;
     if (fa && e.actividad !== fa) return false;
     return true;
+  });
+  lista.sort(function(a, b){
+    var fa_ = String(a.fecha || '').substring(0,10), fb_ = String(b.fecha || '').substring(0,10);
+    if (fa_ === fb_) return 0;
+    return fa_ < fb_ ? 1 : -1;
   });
 
   if (!lista.length){
@@ -2524,6 +2696,8 @@ function pintarHistorial(){
       return s + '</div>';
     }).join('');
 
+    if (e.caravana) lineas += '<div class="lin"><span>Caravana ' + escapar(e.caravana) + '</span></div>';
+
     var meta = [];
     if (e.responsable) meta.push('Cargó: ' + e.responsable);
     if (e.detalleLibre) meta.push(escapar(e.detalleLibre));
@@ -2545,7 +2719,7 @@ function pintarHistorial(){
     if (tp || tv) extra.push(pct(tp, tp+tv) + '% preñez');
 
     var d = document.createElement('div');
-    d.className = 'ev';
+    d.className = 'ev' + (e.esMuerte ? ' muerte' : '');
     d.innerHTML =
       '<div class="top"><span class="fecha">' + fechaLinda(e.fecha) + '</span>' +
       '<span class="campo">' + (e.campo || '—') + '</span></div>' +
@@ -2612,9 +2786,11 @@ function cAplicarTipo(){
   var esHacienda = !!(t && t.forma === 'hacienda');
   var esMuerte   = !!(t && t.forma === 'muerte');
   var esInsumo   = !!(t && t.forma === 'insumo');
+  var esOtra     = !!(t && t.forma === 'otra');
 
   document.getElementById('cFormaHacienda').style.display = esHacienda ? 'block' : 'none';
   document.getElementById('cFormaMuerte').style.display   = esMuerte ? 'block' : 'none';
+  document.getElementById('cFormaOtra').style.display     = esOtra ? 'block' : 'none';
   document.getElementById('cFormaComida').style.display   = esInsumo ? 'block' : 'none';
   document.getElementById('cCardObs').style.display       = t ? 'block' : 'none';
   document.getElementById('cBtnGuardar').style.display    = t ? 'block' : 'none';
@@ -2760,6 +2936,23 @@ function cGuardar(){
       potrero: document.getElementById('cMuertePotrero').value.trim()
     }];
 
+  } else if (cTipo.forma === 'otra'){
+    /* Va a la hoja Comida con Tipo='Otra actividad' (así no hace falta tocar el
+       servidor): Insumo = qué se hizo, Cantidad/Unidad = cabezas y categoría,
+       Lugar = potrero o corral. No mueve el stock. */
+    var que  = document.getElementById('cOtraQue').value.trim();
+    var ocat = document.getElementById('cOtraCat').value;
+    var ocant = parseInt(document.getElementById('cOtraCant').value, 10) || 0;
+    if (!que){ aviso('Contá qué se hizo', true); return; }
+    if (!cCampoOtraSel){ aviso('Elegí el campo', true); return; }
+    if (ocat && !ocant){ aviso('Poné cuántos animales', true); return; }
+    payload.insumo = que;
+    payload.cantidad = ocant || '';
+    payload.unidad = ocant ? (ocat || 'Cabezas') : '';
+    payload.proveedor = '';
+    payload.campo = cCampoOtraSel;
+    payload.lugar = document.getElementById('cOtraLugar').value.trim();
+
   } else {
     var insumo = cTipo.insumoFijo || document.getElementById('cInsumo').value.trim();
     var cant   = document.getElementById('cCantidad').value;
@@ -2783,7 +2976,7 @@ function cGuardar(){
       payload.id = cEditandoId;
       demo = demo.map(function(x){ return x.id === cEditandoId ? payload : x; });
     } else {
-      payload.id = (payload.forma === 'insumo' ? 'IN-' : 'HA-') + (demo.length + 1);
+      payload.id = (payload.forma === 'insumo' || payload.forma === 'otra' ? 'IN-' : 'HA-') + (demo.length + 1);
       demo.unshift(payload);
     }
     guardarDemo('campo_demo', demo);
@@ -2810,8 +3003,13 @@ function cExitoGuardado(){
 
 function cLimpiarForm(){
   cTandas = []; cTipo = null; cEditandoId = null;
-  cCampoSel = ''; cCampoComidaSel = ''; cHaciaSel = ''; cCampoMuerteSel = '';
+  cCampoSel = ''; cCampoComidaSel = ''; cHaciaSel = ''; cCampoMuerteSel = ''; cCampoOtraSel = '';
   document.getElementById('cBannerEdit').style.display = 'none';
+  marcarChip('cChipsOtra', '');
+  marcarChip('cChipsCampoOtra', '');
+  ['cOtraQue','cOtraLugar','cOtraCat','cOtraCant'].forEach(function(id){
+    document.getElementById(id).value = '';
+  });
   document.getElementById('cBtnGuardar').textContent = 'Guardar';
   marcarChip('cChipsTipo', '');
   marcarChip('cChipsCampo', '');
@@ -2854,6 +3052,9 @@ function cEditarRegistro(id){
   } else if (r.forma === 'muerte'){
     cTandas = [];
     cCampoMuerteSel = r.desde || '';
+  } else if (r.forma === 'otra'){
+    cTandas = [];
+    cCampoOtraSel = r.campo || '';
   } else {
     cTandas = [];
     cCampoComidaSel = r.campo || '';
@@ -2878,6 +3079,19 @@ function cEditarRegistro(id){
   document.getElementById('cProveedor').value  = r.proveedor || '';
   document.getElementById('cLugar').value      = r.lugar || '';
   document.getElementById('cObs').value        = r.obs || '';
+
+  if (r.forma === 'otra'){
+    document.getElementById('cOtraQue').value   = r.insumo || '';
+    document.getElementById('cOtraLugar').value = r.lugar || '';
+    document.getElementById('cOtraCant').value  = r.cantidad || '';
+    document.getElementById('cOtraCat').value   = (CATEGORIAS.indexOf(r.unidad) >= 0) ? r.unidad : '';
+    marcarChip('cChipsOtra', r.insumo || '');
+    marcarChip('cChipsCampoOtra', cCampoOtraSel);
+    // los campos de insumo no aplican acá
+    document.getElementById('cInsumo').value = '';
+    document.getElementById('cCantidad').value = '';
+    document.getElementById('cLugar').value = '';
+  }
 
   if (r.forma === 'muerte'){
     var t0 = (r.tandas || [])[0] || {};
@@ -2930,7 +3144,12 @@ function cBorrarRegistro(id){
 function cCargarTodo(){
   if (MODO_DEMO){ cRegistros = leerDemo('campo_demo'); cPintarHistorial(); return; }
   google.script.run
-    .withSuccessHandler(function(data){ cRegistros = data || []; cPintarHistorial(); })
+    .withSuccessHandler(function(data){
+      cRegistros = data || [];
+      // el servidor las devuelve como insumo porque viven en la hoja Comida
+      cRegistros.forEach(function(r){ if (r.tipo === 'Otra actividad') r.forma = 'otra'; });
+      cPintarHistorial();
+    })
     .withFailureHandler(function(){ cRegistros = []; cPintarHistorial(); })
     .getCampo(CODIGO);
 }
@@ -2941,7 +3160,10 @@ function cPintarHistorial(){
   var ft = document.getElementById('cFiltroTipo').value;
   var cont = document.getElementById('cListaHist');
 
-  var lista = cRegistros.filter(function(r){ return !ft || r.tipo === ft; });
+  // las muertes se ven y se corrigen en Sanidad
+  var lista = cRegistros.filter(function(r){
+    return r.forma !== 'muerte' && (!ft || r.tipo === ft);
+  });
 
   if (!lista.length){
     cont.innerHTML = '<div class="vacio">Todavía no hay nada cargado acá.</div>';
@@ -2967,6 +3189,14 @@ function cPintarHistorial(){
       }
       if (cab) extra.push(cab + ' cab.');
       etiqueta = r.desde || '';
+    } else if (r.forma === 'otra'){
+      // el título es lo que se hizo (Pesada, Preparación de jaula...)
+      cuerpo = '';
+      var sub2 = [];
+      if (r.cantidad) sub2.push(r.cantidad + ' ' + escapar(r.unidad || 'cabezas'));
+      if (r.lugar) sub2.push(escapar(r.lugar));
+      if (sub2.length) cuerpo += '<div class="lin"><span>' + sub2.join(' · ') + '</span></div>';
+      etiqueta = r.campo || '';
     } else {
       // "40 Rollos de Rollos de alfalfa" queda feo: si el insumo ya arranca con
       // la unidad, no la repetimos.
@@ -2992,7 +3222,7 @@ function cPintarHistorial(){
     d.innerHTML =
       '<div class="top"><span class="fecha">' + fechaLinda(r.fecha) + '</span>' +
       '<span class="campo">' + (etiqueta || '—') + '</span></div>' +
-      '<div class="act">' + (r.tipo || '—') +
+      '<div class="act">' + (r.forma === 'otra' ? escapar(r.insumo || r.tipo) : (r.tipo || '—')) +
         (extra.length ? ' <span style="font-weight:400;color:var(--gris);font-size:14px;font-family:inherit">· ' +
           extra.join(' · ') + '</span>' : '') +
       '</div>' +
@@ -3008,8 +3238,15 @@ function cPintarHistorial(){
 
 function cLlenarSugerencias(){
   var destinos = {}, transportes = {}, insumos = {}, proveedores = {}, lugares = {}, origenes = {};
+  var otras = {};
   INSUMOS.forEach(function(i){ insumos[i] = true; });
+  OTRAS_ACTIVIDADES.forEach(function(o){ otras[o] = true; });
   cRegistros.forEach(function(r){
+    if (r.forma === 'otra'){
+      if (r.insumo) otras[r.insumo] = true;
+      if (r.lugar) origenes[r.lugar] = true;
+      return;
+    }
     if (r.hacia) destinos[r.hacia] = true;
     if (r.transporte) transportes[r.transporte] = true;
     if (r.insumo) insumos[r.insumo] = true;
@@ -3026,6 +3263,7 @@ function cLlenarSugerencias(){
   volcarDatalist('listaProveedores', Object.keys(proveedores).sort());
   volcarDatalist('listaLugares', Object.keys(lugares).sort());
   volcarDatalist('listaOrigenes', Object.keys(origenes).sort());
+  volcarDatalist('listaOtras', Object.keys(otras).sort());
 }
 
 function cVerTab(t){
