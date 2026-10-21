@@ -778,6 +778,7 @@
         <select id="muerteCat"></select>
         <input type="number" id="muerteCant" class="chico" placeholder="Cant." inputmode="numeric" min="1" value="1">
       </div>
+      <select id="muertePotreroSel" style="display:none"></select>
       <input type="text" id="muertePotrero" list="listaOrigenes"
              placeholder="¿Dónde estaba? (potrero, corral)" autocomplete="off">
       <input type="text" id="muerteCaravana" style="margin-top:9px"
@@ -917,6 +918,11 @@
         <label id="cLblHacia">¿A dónde van?</label>
         <div class="chips" id="cChipsHacia" style="display:none"></div>
         <input type="text" id="cDestino" list="listaDestinos" placeholder="" autocomplete="off">
+        <div id="cCardPotreroDestino" style="display:none;margin-top:9px">
+          <select id="cPotreroDestinoSel" style="display:none"></select>
+          <input type="text" id="cPotreroDestino" list="listaOrigenes"
+                 placeholder="¿A qué potrero o corral?" autocomplete="off">
+        </div>
         <div style="margin-top:9px">
           <input type="text" id="cTransporte" list="listaTransportes"
                  placeholder="Transportista / jaulero (opcional)" autocomplete="off">
@@ -930,6 +936,7 @@
             <select id="cCatNueva"></select>
             <input type="number" id="cCantNueva" class="chico" placeholder="Cant." inputmode="numeric" min="1">
           </div>
+          <select id="cOrigenNuevaSel" style="display:none"></select>
           <input type="text" id="cOrigenNueva" list="listaOrigenes"
                  placeholder="¿De qué potrero salen? (opcional)" autocomplete="off">
           <button class="btn sec" style="margin-top:11px" onclick="cAgregarTanda()">+ Agregar tanda</button>
@@ -955,6 +962,7 @@
           <select id="cMuerteCat"></select>
           <input type="number" id="cMuerteCant" class="chico" placeholder="Cant." inputmode="numeric" min="1" value="1">
         </div>
+        <select id="cMuertePotreroSel" style="display:none"></select>
         <input type="text" id="cMuertePotrero" list="listaOrigenes"
                placeholder="¿Dónde estaba? (potrero, corral)" autocomplete="off">
         <input type="text" id="cMuerteCaravana" style="margin-top:9px"
@@ -1477,9 +1485,8 @@ var TIPOS_CAMPO = [
     lblDesde:'¿De dónde vienen?', lblHacia:'¿A qué campo entran?',
     ayuda:'Animales que entran. Si los compraste, elegí Otros y escribí de quién.' },
 
-  { nombre:'Movimiento de hacienda', forma:'hacienda', desde:'campos', hacia:'texto',
+  { nombre:'Movimiento de hacienda', forma:'hacienda', desde:'campos', hacia:'campos',
     lblDesde:'¿De dónde salen?', lblHacia:'¿A dónde van?',
-    phDestino:'Ej: La Ilusión, potrero del fondo',
     ayuda:'Traslados entre campos o entre potreros.' },
 
   // Se carga desde Sanidad; queda acá (oculta) porque se guarda con guardarCampo.
@@ -1763,6 +1770,7 @@ function abrirModulo(m){
   document.getElementById('btnVolver').style.display =
     (VISTA === 'sanidad' || solounomodulo) ? 'none' : 'block';
 
+  if (m === 'sanidad' || m === 'campo') cargarListaPotreros();
   if (m === 'sanidad') cargarTodo();
   else if (m === 'campo') cCargarTodo();
   else if (m === 'rep') rCargarTodo();
@@ -1837,15 +1845,18 @@ function init(){
     cCampoSel = (cCampoSel === v) ? '' : v;
     marcarChip('cChipsCampo', cCampoSel);
     document.getElementById('cDesdeOtro').style.display = (cCampoSel === OTROS) ? 'block' : 'none';
+    cPrepararPotreros();
   });
   pintarChipsSimple('cChipsHacia', CAMPOS, function(v){
     cHaciaSel = (cHaciaSel === v) ? '' : v; marcarChip('cChipsHacia', cHaciaSel);
+    cPrepararPotreros();
   });
   pintarChipsSimple('cChipsCampoComida', CAMPOS, function(v){
     cCampoComidaSel = (cCampoComidaSel === v) ? '' : v; marcarChip('cChipsCampoComida', cCampoComidaSel);
   });
   pintarChipsSimple('cChipsCampoMuerte', CAMPOS, function(v){
     cCampoMuerteSel = (cCampoMuerteSel === v) ? '' : v; marcarChip('cChipsCampoMuerte', cCampoMuerteSel);
+    prepararPotrero('cMuertePotrero', cCampoMuerteSel);
   });
   llenarSelect('cMuerteCat', CATEGORIAS, 'Categoría');
 
@@ -1925,6 +1936,109 @@ function fechaLinda(iso){
   return p[2] + '/' + p[1] + '/' + p[0];
 }
 
+/* ---------- potreros como lista ----------
+   Para que el stock descuente del potrero justo, el potrero se elige de la
+   hoja Potreros y no se escribe a mano ("Corral 5" no es "C5"). Cada lugar
+   tiene un select (id + 'Sel') y el texto libre de antes (id): sin lista
+   (un campo de afuera, o alguien sin acceso al stock) queda el texto. */
+var POTREROS_LISTA = null;   // null = no llegó o no hay permiso
+
+function cargarListaPotreros(){
+  if (POTREROS_LISTA) return;
+  if (MODO_DEMO){ POTREROS_LISTA = leerDemo('potreros_demo') || []; refrescarPotreros(); return; }
+  if (!puede('stock')) return;
+  google.script.run
+    .withSuccessHandler(function(d){ POTREROS_LISTA = d || []; refrescarPotreros(); })
+    .withFailureHandler(function(){ POTREROS_LISTA = null; })
+    .getPotreros(CODIGO);
+}
+
+function potrerosDelCampo(campo){
+  if (!POTREROS_LISTA || !campo) return [];
+  return POTREROS_LISTA
+    .filter(function(p){ return p.campo === campo; })
+    .sort(function(a, b){ return String(a.nombre).localeCompare(String(b.nombre), 'es', {numeric:true}); });
+}
+
+function usaListaPotrero(id){
+  var sel = document.getElementById(id + 'Sel');
+  return !!(sel && sel.style.display !== 'none');
+}
+
+function leerPotrero(id){
+  if (usaListaPotrero(id)) return document.getElementById(id + 'Sel').value;
+  return document.getElementById(id).value.trim();
+}
+
+/** Arma la lista con los potreros del campo. Un valor viejo que no está en la
+ *  lista se deja como opción, marcado, para no perderlo al corregir. */
+function prepararPotrero(id, campo, valor){
+  var sel = document.getElementById(id + 'Sel');
+  var txt = document.getElementById(id);
+  if (!sel || !txt) return;
+  if (valor === undefined) valor = leerPotrero(id);
+  var lista = potrerosDelCampo(campo);
+
+  if (!lista.length){
+    sel.style.display = 'none';
+    txt.style.display = '';
+    txt.value = valor || '';
+    return;
+  }
+
+  sel.innerHTML = '';
+  var o0 = document.createElement('option');
+  o0.value = ''; o0.textContent = 'Elegí el potrero o corral';
+  sel.appendChild(o0);
+  var nombres = [];
+  lista.forEach(function(p){
+    nombres.push(p.nombre);
+    var o = document.createElement('option');
+    o.value = p.nombre;
+    o.textContent = p.nombre + (p.tipo === 'Corral' ? ' (corral)' : '');
+    sel.appendChild(o);
+  });
+  if (valor && nombres.indexOf(valor) < 0){
+    var ov = document.createElement('option');
+    ov.value = valor; ov.textContent = valor + ' (no está en la lista)';
+    sel.appendChild(ov);
+  }
+  sel.value = valor || '';
+  sel.style.display = '';
+  txt.style.display = 'none';
+}
+
+/** Para validar: si el campo tiene lista, el potrero tiene que estar en ella. */
+function potreroValido(campo, nombre){
+  var lista = potrerosDelCampo(campo);
+  if (!lista.length) return true;
+  return lista.some(function(p){ return p.nombre === nombre; });
+}
+
+/** Campo del que se elige el potrero de las tandas: al que entran si es un
+ *  ingreso, del que salen en lo demás. */
+function cCampoDeTandas(){
+  if (!cTipo) return '';
+  var c = (cTipo.nombre.indexOf('Ingreso') === 0) ? cHaciaSel : cCampoSel;
+  return (c === OTROS) ? '' : c;
+}
+
+function cPrepararPotreros(){
+  var esIngreso = !!(cTipo && cTipo.nombre.indexOf('Ingreso') === 0);
+  var esMov = !!(cTipo && cTipo.nombre.indexOf('Movimiento') === 0);
+  document.getElementById('cOrigenNueva').placeholder = esIngreso
+    ? '¿A qué potrero entran?' : '¿De qué potrero salen?';
+  prepararPotrero('cOrigenNueva', cCampoDeTandas(), '');
+  document.getElementById('cCardPotreroDestino').style.display = esMov ? 'block' : 'none';
+  prepararPotrero('cPotreroDestino', esMov ? cHaciaSel : '');
+}
+
+function refrescarPotreros(){
+  prepararPotrero('muertePotrero', campoSel);
+  prepararPotrero('cMuertePotrero', cCampoMuerteSel);
+  if (cTipo && cTipo.forma === 'hacienda') cPrepararPotreros();
+}
+
 function volcarDatalist(id, arr){
   var dl = document.getElementById(id);
   if (!dl) return;
@@ -1989,6 +2103,7 @@ function guardarDemo(clave, a){
 function elegirCampo(v){
   campoSel = (campoSel === v) ? '' : v;
   marcarChip('chipsCampo', campoSel);
+  prepararPotrero('muertePotrero', campoSel);
 }
 
 function elegirActividad(nombre){
@@ -2328,6 +2443,8 @@ function guardarMuerte(fecha, resp){
   var mcant = parseInt(document.getElementById('muerteCant').value, 10) || 0;
   if (!mcat){ aviso('Elegí qué categoría', true); return; }
   if (mcant <= 0){ aviso('Poné cuántos', true); return; }
+  var mpot = leerPotrero('muertePotrero');
+  if (!potreroValido(campoSel, mpot)){ aviso('Elegí en qué potrero o corral estaba', true); return; }
 
   var payload = {
     fecha: fecha, tipo: 'Muerte', forma: 'muerte',
@@ -2336,8 +2453,7 @@ function guardarMuerte(fecha, resp){
     idExistente: editandoId || '',
     desde: campoSel, hacia: '',
     caravana: document.getElementById('muerteCaravana').value.trim(),
-    tandas: [{ categoria: mcat, cantidad: mcant,
-               potrero: document.getElementById('muertePotrero').value.trim() }]
+    tandas: [{ categoria: mcat, cantidad: mcant, potrero: mpot }]
   };
 
   var btn = document.getElementById('btnGuardar');
@@ -2398,6 +2514,7 @@ function limpiarForm(){
     document.getElementById(id).value = '';
   });
   document.getElementById('muerteCant').value = '1';
+  prepararPotrero('muertePotrero', '', '');
   aplicarActividad();
   window.scrollTo({top:0, behavior:'smooth'});
 }
@@ -2448,7 +2565,7 @@ function editarEvento(id){
     var t0 = (ev.tandas || [])[0] || {};
     document.getElementById('muerteCat').value      = t0.categoria || '';
     document.getElementById('muerteCant').value     = t0.cantidad || 1;
-    document.getElementById('muertePotrero').value  = t0.origen || '';
+    prepararPotrero('muertePotrero', campoSel, t0.origen || '');
     document.getElementById('muerteCaravana').value = ev.caravana || '';
   }
 
@@ -2826,16 +2943,18 @@ function cAplicarTipo(){
   }
 
   cLimpiarEditor();
+  if (esHacienda) cPrepararPotreros();
   cPintarTandas();
 }
 
 function cAgregarTanda(){
   var cat    = document.getElementById('cCatNueva').value;
   var cant   = parseInt(document.getElementById('cCantNueva').value, 10);
-  var potrero= document.getElementById('cOrigenNueva').value.trim();
+  var potrero= leerPotrero('cOrigenNueva');
 
   if (!cat){ aviso('Elegí una categoría', true); return; }
   if (!cant || cant <= 0){ aviso('Poné la cantidad', true); return; }
+  if (usaListaPotrero('cOrigenNueva') && !potrero){ aviso('Elegí el potrero o corral', true); return; }
 
   cTandas.push({categoria:cat, cantidad:cant, potrero:potrero});
   cLimpiarEditor();
@@ -2845,7 +2964,7 @@ function cAgregarTanda(){
 function cBorrarTanda(i){ cTandas.splice(i,1); cPintarTandas(); }
 
 function cLimpiarEditor(){
-  ['cCantNueva','cOrigenNueva'].forEach(function(id){
+  ['cCantNueva','cOrigenNueva','cOrigenNuevaSel'].forEach(function(id){
     var el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -2916,6 +3035,18 @@ function cGuardar(){
       : document.getElementById('cDestino').value.trim();
     if (!hacia){ aviso('Poné a dónde van', true); return; }
 
+    var campoTandas = cCampoDeTandas();
+    var malas = cTandas.filter(function(t){ return !potreroValido(campoTandas, t.potrero); });
+    if (malas.length){
+      aviso('Hay tandas sin potrero de ' + campoTandas + '. Borralas y cargalas de nuevo eligiendo el potrero.', true);
+      return;
+    }
+    if (cTipo.nombre.indexOf('Movimiento') === 0){
+      var pdest = leerPotrero('cPotreroDestino');
+      if (!potreroValido(hacia, pdest)){ aviso('Elegí a qué potrero o corral van', true); return; }
+      payload.potreroDestino = pdest;
+    }
+
     payload.desde = desde;
     payload.hacia = hacia;
     payload.transporte = document.getElementById('cTransporte').value.trim();
@@ -2931,10 +3062,9 @@ function cGuardar(){
     payload.desde = cCampoMuerteSel;
     payload.hacia = '';
     payload.caravana = document.getElementById('cMuerteCaravana').value.trim();
-    payload.tandas = [{
-      categoria: mcat, cantidad: mcant,
-      potrero: document.getElementById('cMuertePotrero').value.trim()
-    }];
+    var cmpot = leerPotrero('cMuertePotrero');
+    if (!potreroValido(cCampoMuerteSel, cmpot)){ aviso('Elegí en qué potrero o corral estaba', true); return; }
+    payload.tandas = [{ categoria: mcat, cantidad: mcant, potrero: cmpot }];
 
   } else if (cTipo.forma === 'otra'){
     /* Va a la hoja Comida con Tipo='Otra actividad' (así no hace falta tocar el
@@ -3022,6 +3152,7 @@ function cLimpiarForm(){
   });
   document.getElementById('cMuerteCat').value = '';
   document.getElementById('cMuerteCant').value = '1';
+  prepararPotrero('cMuertePotrero', '', '');
   document.getElementById('cFecha').value = hoyISO();
   cAplicarTipo();
   window.scrollTo({top:0, behavior:'smooth'});
@@ -3097,7 +3228,7 @@ function cEditarRegistro(id){
     var t0 = (r.tandas || [])[0] || {};
     document.getElementById('cMuerteCat').value      = t0.categoria || '';
     document.getElementById('cMuerteCant').value     = t0.cantidad || 1;
-    document.getElementById('cMuertePotrero').value  = t0.potrero || '';
+    prepararPotrero('cMuertePotrero', cCampoMuerteSel, t0.potrero || '');
     document.getElementById('cMuerteCaravana').value = r.caravana || '';
   }
 
